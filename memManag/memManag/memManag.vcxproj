@@ -147,7 +147,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="bestFit_MemManag.cpp" />
-    <ClCompile Include="main.c" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="worstFit_MemManag.cpp" />
   </ItemGroup>
   <ItemGroup>
