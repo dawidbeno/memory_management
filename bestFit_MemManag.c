@@ -1,3 +1,10 @@
+// last edit: 7.4. 22:40
+
+/*
+* Memory management library based on Worst-fit algorhitm
+*
+* Created by Dávid Beòo
+*/
 
 #include <stdint.h>
 #include "bestFit_MemManag.h"
@@ -6,12 +13,12 @@
 /*
 First two block in linked list
 */
-static Mem_block Start, End, pom;
+static Mem_block Start, *End;
 
 /*
 Actual free memory
 */
-static uint16_t actFreeMem = FREE_SRAM - sizeof(Start) - sizeof(End); // 2 * MEM_BLOCK_SIZE
+uint16_t actFreeMem = FREE_SRAM - sizeof(Start) - sizeof(Start); // 2 * MEM_BLOCK_SIZE
 
 
 
@@ -23,19 +30,31 @@ void bPrintLinkedList();
 
 void bMemInit() {
 
-	Mem_block *pNewBlock = &pom;
+	Mem_block *pNewBlock;
+	char *ptr = (char*)&Start;
+	actFreeMem = FREE_SRAM - sizeof(Start) - sizeof(Start);
 
-	/*Initialises end of linked list*/
-	End.pNextFreeBlock = NULL;
-	End.blockSize = FREE_SRAM;
-
-	/* New block represents whole free memory, insert between pStart and pEnd */
-	pNewBlock->pNextFreeBlock = &End;
-	pNewBlock->blockSize = actFreeMem - MEM_BLOCK_SIZE;
 
 	/*Initialises start of linked list*/
-	Start.pNextFreeBlock = (Mem_block*)pNewBlock;
+	Start.pNextFreeBlock = NULL;
 	Start.blockSize = 0;
+
+	/*shift pointer*/
+	ptr += MEM_BLOCK_SIZE;
+	pNewBlock = (Mem_block*)ptr;
+
+	/* New block represents whole free memory, insert between pStart and pEnd */
+	pNewBlock->pNextFreeBlock = End;
+	pNewBlock->blockSize = actFreeMem - MEM_BLOCK_SIZE;
+	Start.pNextFreeBlock = pNewBlock;
+
+	/*shift pointer*/
+	ptr += (MEM_BLOCK_SIZE + pNewBlock->blockSize);
+	End = (Mem_block*)ptr;
+
+	/*Initialises end of linked list*/
+	End->pNextFreeBlock = NULL;
+	End->blockSize = FREE_SRAM;
 
 	actFreeMem -= MEM_BLOCK_SIZE;
 
@@ -105,7 +124,7 @@ void *bMemAlloc(uint16_t requestedSize) {
 
 			/*New block is filled with its data*/
 			pNew->blockSize = pAct->blockSize - requestedSize;
-			pNew->pNextFreeBlock = &End;
+			pNew->pNextFreeBlock = End;
 
 			/*Update of actual block*/
 			pAct->blockSize = requestedSize - (MEM_BLOCK_SIZE);
@@ -196,7 +215,7 @@ void *bMemRealloc(void *ptrToRealloc, uint16_t requestedSize) {
 void bPrintLinkedList() {
 	Mem_block *iterator;
 
-	printf("\n\n Vypis Listu \n");
+	printf("\n\nList of free memory blocks\n");
 
 	/*Iterates whole list and prints size of each block from Start to penultimate block*/
 	for (iterator = &Start; iterator->pNextFreeBlock != NULL; iterator = iterator->pNextFreeBlock) {
@@ -209,6 +228,33 @@ void bPrintLinkedList() {
 	printf("Celkovo volnej pamate je: %d \n", actFreeMem);
 }
 
+
+
+
+void bPrintWholeMemory() {
+	Mem_block *iterator = &Start;
+	int size = iterator->blockSize;
+	
+	char *ptr = (char*)iterator;
+
+	printf("\nList of all blocks of memory\n");
+
+	while (1) {
+		if (iterator->blockSize == FREE_SRAM) {
+			break;
+		}
+		size = iterator->blockSize;
+		printf("Velkost bloku %d \n", size);
+		
+		ptr += (MEM_BLOCK_SIZE + size);
+
+		iterator = (Mem_block*)ptr;
+
+	}
+
+	printf("Velkost bloku %d \n", iterator->blockSize);
+
+}
 
 
 

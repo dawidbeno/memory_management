@@ -99,4 +99,10 @@ void *bMemRealloc(void *ptrToRealoc, uint16_t requestedSize);
 */
 void bPrintLinkedList();
 
+
+/*
+* Print whole memory blocks
+*/
+void bPrintWholeMemory();
+
 #endif

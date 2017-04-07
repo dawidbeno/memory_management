@@ -1,3 +1,4 @@
+// last edit: 7.4. 23:15
 
 /*
 * Memory management library based on Worst-fit algorhitm
@@ -12,12 +13,12 @@
 /*
 First two block in linked list
 */
-static wMem_block Start, End, pom;
+static wMem_block Start, *End;
 
 /*
 Actual free memory
 */
-static uint16_t actFreeMem = FREE_SRAM - sizeof(Start) - sizeof(End); // 2 * MEM_BLOCK_SIZE
+uint16_t actFreeMemW = FREE_SRAM - sizeof(Start) - sizeof(Start); // 2 * MEM_BLOCK_SIZE
 
 
 
@@ -29,21 +30,33 @@ void wPrintLinkedList();
 
 void wMemInit() {
 
-	wMem_block *pNewBlock = &pom;
-
-	/*Initialises end of linked list*/
-	End.pNextFreeBlock = NULL;
-	End.blockSize = 0;
-
-	/* New block represents whole free memory, insert between pStart and pEnd */
-	pNewBlock->pNextFreeBlock = &End;
-	pNewBlock->blockSize = actFreeMem - MEM_BLOCK_SIZE;
+	wMem_block *pNewBlock;
+	char *ptr = (char*)&Start;
+	actFreeMemW = FREE_SRAM - sizeof(Start) - sizeof(Start);
 
 	/*Initialises start of linked list*/
-	Start.pNextFreeBlock = (wMem_block*)pNewBlock;
+	Start.pNextFreeBlock = NULL;
 	Start.blockSize = FREE_SRAM;
 
-	actFreeMem -= MEM_BLOCK_SIZE;
+	/*shift pointer*/
+	ptr += MEM_BLOCK_SIZE;
+	pNewBlock = (wMem_block*)ptr;
+
+	/* New block represents whole free memory, insert between pStart and pEnd */
+	pNewBlock->pNextFreeBlock = End;
+	pNewBlock->blockSize = actFreeMemW - MEM_BLOCK_SIZE;
+	Start.pNextFreeBlock = pNewBlock;
+
+	/*shift pointer*/
+	ptr += (MEM_BLOCK_SIZE + pNewBlock->blockSize);
+	End = (wMem_block*)ptr;
+
+
+	/*Initialises end of linked list*/
+	End->pNextFreeBlock = NULL;
+	End->blockSize = 0;
+
+	actFreeMemW -= MEM_BLOCK_SIZE;
 
 }
 
@@ -72,7 +85,7 @@ void *wMemAlloc(uint16_t requestedSize) {
 	requestedSize += MEM_BLOCK_SIZE;
 
 	/*If requested size is still lower than actual free space in memory*/
-	if (requestedSize < actFreeMem) {
+	if (requestedSize < actFreeMemW) {
 		pPrev = &Start;
 		pAct = pPrev->pNextFreeBlock;
 
@@ -81,7 +94,7 @@ void *wMemAlloc(uint16_t requestedSize) {
 
 			toReturn = (void*)((char*)pAct + MEM_BLOCK_SIZE);	// pointer to block which will be returned
 			pPrev->pNextFreeBlock = pAct->pNextFreeBlock;		// actual block is deleted from list of free blocks
-			actFreeMem -= (requestedSize - MEM_BLOCK_SIZE);						// actual free memory is decreased
+			actFreeMemW -= (requestedSize - MEM_BLOCK_SIZE);						// actual free memory is decreased
 
 		}
 
@@ -95,7 +108,7 @@ void *wMemAlloc(uint16_t requestedSize) {
 
 			/*Actual free memory space is decreased
 			Space for new block is counted in requestedSize*/
-			actFreeMem -= requestedSize;
+			actFreeMemW -= requestedSize;
 
 			/*New block is filled with its data*/
 			pNew->blockSize = pAct->blockSize - requestedSize;
@@ -138,7 +151,7 @@ void wMemFree(void *ptrToFree) {
 		insertNewBlock(block);
 
 		/*Amount of accessible memory is increased*/
-		actFreeMem += block->blockSize;
+		actFreeMemW += block->blockSize;
 	}
 
 
@@ -203,9 +216,38 @@ void wPrintLinkedList() {
 	printf("Velkost bloku %d \n", iterator->blockSize);
 
 	/*Prints real actual free memory */
-	printf("Celkovo volnej pamate je: %d \n", actFreeMem);
+	printf("Celkovo volnej pamate je: %d \n", actFreeMemW);
 }
 
+
+void wPrintWholeMemory() {
+	wMem_block *iterator = &Start;
+	int size = iterator->blockSize;
+	char *ptr = (char*)iterator;
+
+	printf("\nList of all blocks of memory\n");
+	printf("Velkost bloku %d \n", size);
+
+
+	ptr += MEM_BLOCK_SIZE;
+	iterator = (wMem_block*)ptr;
+
+	while (1) {
+		if (iterator->blockSize == 0) {
+			break;
+		}
+		size = iterator->blockSize;
+		printf("Velkost bloku %d \n", size);
+
+		ptr += (MEM_BLOCK_SIZE + size);
+
+		iterator = (wMem_block*)ptr;
+
+	}
+
+	printf("Velkost bloku %d \n", iterator->blockSize);
+
+}
 
 
 

@@ -106,4 +106,9 @@ void *wMemRealloc(void *ptrToRealoc, uint16_t requestedSize);
 */
 void wPrintLinkedList();
 
+/*
+* Prints whole memory blocks
+*/
+void wPrintWholeMemory();
+
 #endif
