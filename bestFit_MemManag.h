@@ -49,7 +49,7 @@ Defined structure for linked list, where are all blocks stored
 */
 typedef struct MEM_BLOCK
 {
-	struct MEM_BLOCK *pNextFreeBlock; // pointer to next free block
+	struct MEM_BLOCK *pNextFreeBlock; // pointer to next free block in list of free blocks
 	uint16_t blockSize; // size of actual block
 } Mem_block;
 

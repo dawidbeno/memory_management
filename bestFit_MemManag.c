@@ -1,4 +1,4 @@
-// last edit: 7.4. 22:40
+// last edit: 8.4. 14:40
 
 /*
 * Memory management library based on Worst-fit algorhitm
@@ -81,11 +81,14 @@ void *bMemAlloc(uint16_t requestedSize) {
 		requestedSize++;
 	}
 
-	/*We allocate memory for request and for new block*/
-	requestedSize += MEM_BLOCK_SIZE;
+	
 
 	/*If requested size is still lower than actual free space in memory*/
-	if (requestedSize < actFreeMem) {
+	if (requestedSize <= actFreeMem) {
+
+		/*We allocate memory for request and for new block*/
+		requestedSize += MEM_BLOCK_SIZE;
+
 		pPrev = &Start;
 		pAct = pPrev->pNextFreeBlock;
 
@@ -107,6 +110,7 @@ void *bMemAlloc(uint16_t requestedSize) {
 			toReturn = (void*)((char*)pAct + MEM_BLOCK_SIZE);	// pointer to block which will be returned
 			pPrev->pNextFreeBlock = pAct->pNextFreeBlock;		// actual block is deleted from list of free blocks
 			actFreeMem -= (requestedSize - MEM_BLOCK_SIZE);						// actual free memory is decreased
+			pAct->pNextFreeBlock = &Start;						// allcated block points to the Start of memory
 			
 		}
 
@@ -137,6 +141,9 @@ void *bMemAlloc(uint16_t requestedSize) {
 
 			/*pointer to block which will be returned*/
 			toReturn = (void*)((char*)pAct + MEM_BLOCK_SIZE);
+
+			/*allocated block points to the Start of memory*/
+			pAct->pNextFreeBlock = &Start;						
 		}
 	}
 
@@ -174,8 +181,9 @@ void *bMemRealloc(void *ptrToRealloc, uint16_t requestedSize) {
 	void *toReturn = NULL;	// pointer which will be returned
 	Mem_block *pBlock = NULL;
 	char *ptr = (char*)ptrToRealloc;
-	char* pNew;
+	char* pNew = (char*)ptrToRealloc;
 	int i;
+	char needToCopy = 'N';
 
 	if (requestedSize < 0) {
 		return NULL;
@@ -183,24 +191,78 @@ void *bMemRealloc(void *ptrToRealloc, uint16_t requestedSize) {
 	
 	if (ptrToRealloc != NULL) {
 
+		/*First check if copying data is needed*/
 		ptr -= MEM_BLOCK_SIZE;
 		pBlock = (Mem_block*)ptr;
+		i = pBlock->blockSize;
 
-		/* Allocate new block of memory */
-		toReturn = bMemAlloc(requestedSize);
+		ptr += MEM_BLOCK_SIZE + pBlock->blockSize;
+		pBlock = (Mem_block*)ptr;
 
-		/* Copy data if allocation was successfull */
-		if (toReturn != NULL) {
-			
-			pNew = (char*)toReturn;
-			ptr += MEM_BLOCK_SIZE;
-			for (i = 0; i < pBlock->blockSize; i++) {
-				pNew[i] = ptr[i];				
-			}
+		if (pBlock->pNextFreeBlock == &Start) { 
+			needToCopy = 'Y'; 
+		}
+		else {
+			needToCopy = 'N';
 		}
 
-		/* Make old pointer free*/
-		bMemFree(ptrToRealloc);
+		if (i + pBlock->blockSize + MEM_BLOCK_SIZE < requestedSize) {
+			needToCopy = 'Y';
+		}
+
+		
+		/*If copying data is not needed*/
+		if (needToCopy == 'N') {
+
+			/*If new block will not be created. New size matches size of actual block and size of next free block*/
+			if (i + pBlock->blockSize + MEM_BLOCK_SIZE == requestedSize) {
+				
+
+			}
+			/*New block will be created*/
+			else {
+			
+			}
+
+		}
+
+
+		// toto kopirovanie by malo byt fixnute
+		/*If it is needed to copy data*/
+		if (needToCopy == 'Y') {
+
+			/* Allocate new block of memory */
+			toReturn = bMemAlloc(requestedSize);
+
+			/* Copy data if allocation was successfull */
+			if (toReturn != NULL) {
+				ptr = (char*)ptrToRealloc;
+				ptr -= MEM_BLOCK_SIZE;
+				pBlock = (Mem_block*)ptr;
+
+				/*Set pointers to copying*/
+				pNew = (char*)toReturn;
+				ptr += MEM_BLOCK_SIZE;
+
+				if (requestedSize >= pBlock->blockSize) {
+					for (i = 0; i < pBlock->blockSize; i++) {
+						pNew[i] = ptr[i];
+					}
+				}
+
+				if (requestedSize < pBlock->blockSize) {
+					for (i = 0; i < requestedSize; i++) {
+						pNew[i] = ptr[i];
+					}
+				}
+				
+
+				/* Make old pointer free*/
+				bMemFree(ptrToRealloc);
+			}
+		}
+		
+
 	}
 	
 
@@ -237,14 +299,20 @@ void bPrintWholeMemory() {
 	
 	char *ptr = (char*)iterator;
 
-	printf("\nList of all blocks of memory\n");
+	printf("\nList of all blocks of memory \n");
 
 	while (1) {
 		if (iterator->blockSize == FREE_SRAM) {
 			break;
 		}
 		size = iterator->blockSize;
-		printf("Velkost bloku %d \n", size);
+
+		if (iterator->pNextFreeBlock == &Start) {
+			printf("Velkost bloku %d ALLOCATED\n", size);
+		}
+		else {
+			printf("Velkost bloku %d FREE\n", size);
+		}
 		
 		ptr += (MEM_BLOCK_SIZE + size);
 

@@ -1,4 +1,4 @@
-// last edit: 7.4. 23:15
+// last edit: 7.4. 23:36
 
 /*
 * Memory management library based on Worst-fit algorhitm
@@ -81,11 +81,13 @@ void *wMemAlloc(uint16_t requestedSize) {
 		requestedSize++;
 	}
 
-	/*We allocate memory for request and for new block*/
-	requestedSize += MEM_BLOCK_SIZE;
 
 	/*If requested size is still lower than actual free space in memory*/
 	if (requestedSize < actFreeMemW) {
+
+		/*We allocate memory for request and for new block*/
+		requestedSize += MEM_BLOCK_SIZE;
+
 		pPrev = &Start;
 		pAct = pPrev->pNextFreeBlock;
 
