@@ -1,7 +1,7 @@
-// last edit: 10.4. 15:50
+// last edit: 10.4. 18:20
 
 /*
-* Memory management library based on Worst-fit algorhitm
+* Memory management library based on Best-fit algorhitm
 *
 * Created by Dávid Beòo
 */
@@ -285,7 +285,6 @@ void *bMemRealloc(void *ptrToRealloc, uint16_t requestedSize) {
 				i = pNext->blockSize;
 				deleteFromList(pNext);
 
-				bPrintLinkedList();
 
 				pNewBlock->pPrevBlock = pBlock;
 				pNewBlock->blockSize = i - (requestedSize - pBlock->blockSize);
@@ -345,6 +344,8 @@ void *bMemRealloc(void *ptrToRealloc, uint16_t requestedSize) {
 
 	return (void*)toReturn;
 }
+
+
 
 void bPrintLinkedList() {
 	Mem_block *iterator = &Start;
