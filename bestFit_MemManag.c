@@ -1,4 +1,4 @@
-// last edit: 8.4. 14:40
+// last edit: 10.4. 15:50
 
 /*
 * Memory management library based on Worst-fit algorhitm
@@ -13,7 +13,7 @@
 /*
 First two block in linked list
 */
-static Mem_block Start, *End;
+static Mem_block Start, *End = NULL;
 
 /*
 Actual free memory
@@ -24,8 +24,18 @@ uint16_t actFreeMem = FREE_SRAM - sizeof(Start) - sizeof(Start); // 2 * MEM_BLOC
 
 static void insertNewBlock(Mem_block *pNewBlockToInsert);
 
+static void joinBlock(Mem_block *pAct);
+
+static void deleteFromList(Mem_block* toDel);
+
 void bPrintLinkedList();
 
+/* ********* IMPORTAT ************** 
+* IF pNextFreeBlock points to Start, it means, block is allocated
+* else block is free.
+* 
+* pPrevBlock can point to start but block can be free
+*/
 
 
 void bMemInit() {
@@ -37,6 +47,7 @@ void bMemInit() {
 
 	/*Initialises start of linked list*/
 	Start.pNextFreeBlock = NULL;
+	Start.pPrevBlock = NULL;
 	Start.blockSize = 0;
 
 	/*shift pointer*/
@@ -45,27 +56,29 @@ void bMemInit() {
 
 	/* New block represents whole free memory, insert between pStart and pEnd */
 	pNewBlock->pNextFreeBlock = End;
+	pNewBlock->pPrevBlock = &Start;
 	pNewBlock->blockSize = actFreeMem - MEM_BLOCK_SIZE;
 	Start.pNextFreeBlock = pNewBlock;
 
 	/*shift pointer*/
 	ptr += (MEM_BLOCK_SIZE + pNewBlock->blockSize);
 	End = (Mem_block*)ptr;
+	
 
 	/*Initialises end of linked list*/
 	End->pNextFreeBlock = NULL;
+	End->pPrevBlock = pNewBlock;
 	End->blockSize = FREE_SRAM;
+
+	pNewBlock->pNextFreeBlock = End;
 
 	actFreeMem -= MEM_BLOCK_SIZE;
 
 }
 
 
-
-
-
 void *bMemAlloc(uint16_t requestedSize) {
-
+	char *ptr;
 	void *toReturn = NULL;	// pointer which will be returned
 	Mem_block *pPrev;		// pointer to previous block
 	Mem_block *pAct;		// pointer to actual block
@@ -80,8 +93,6 @@ void *bMemAlloc(uint16_t requestedSize) {
 	if (requestedSize % 2 != 0) {
 		requestedSize++;
 	}
-
-	
 
 	/*If requested size is still lower than actual free space in memory*/
 	if (requestedSize <= actFreeMem) {
@@ -128,7 +139,8 @@ void *bMemAlloc(uint16_t requestedSize) {
 
 			/*New block is filled with its data*/
 			pNew->blockSize = pAct->blockSize - requestedSize;
-			pNew->pNextFreeBlock = End;
+			pNew->pNextFreeBlock = NULL;
+			pNew->pPrevBlock = pAct;
 
 			/*Update of actual block*/
 			pAct->blockSize = requestedSize - (MEM_BLOCK_SIZE);
@@ -142,8 +154,14 @@ void *bMemAlloc(uint16_t requestedSize) {
 			/*pointer to block which will be returned*/
 			toReturn = (void*)((char*)pAct + MEM_BLOCK_SIZE);
 
+			/*Set pPrevBlock to the next block - set to actual block*/
+			ptr = (char*)pNew;
+			ptr += MEM_BLOCK_SIZE + pNew->blockSize;
+			pPrev = (Mem_block*)ptr;
+			pPrev->pPrevBlock = pNew;
+
 			/*allocated block points to the Start of memory*/
-			pAct->pNextFreeBlock = &Start;						
+			pAct->pNextFreeBlock = (Mem_block*)&Start;
 		}
 	}
 
@@ -152,11 +170,18 @@ void *bMemAlloc(uint16_t requestedSize) {
 
 
 
-
+/*
+ak je vytvoreny novy blok pouzije sa funckia insertNewBlock
+ak sa ale zlucuje viacero blokov, to znamena ze jeden uz bol v liste zvacsil sa (priradil sa k inemu)
+Nikdy sa nebudu vyskytovat 2 a viac volnych blokov vedla seba, preto ak uvolnujem blok, maximalne mozu byt okolo neho 1 volny blok pred aj za.
+Preto netreba prehladavat bloky v cykle ale staci sa pozriet iba na jeden pred a jeden za
+*/
 
 void bMemFree(void *ptrToFree) {
 	Mem_block *block;
+	Mem_block *next;
 	char *ptr = (char*)ptrToFree;
+	int chR = 0, chL = 0;
 
 	if (ptrToFree != NULL) {
 
@@ -165,14 +190,27 @@ void bMemFree(void *ptrToFree) {
 
 		/*Cast to Mem_block type*/
 		block = (Mem_block*)ptr;
-
-		/*Insert freed block to sorted linked list*/
 		insertNewBlock(block);
-
-		/*Amount of accessible memory is increased*/
 		actFreeMem += block->blockSize;
+
+		/*Try to join right next block*/
+		ptr = (char*)block;
+		ptr += MEM_BLOCK_SIZE + block->blockSize;
+		next = (Mem_block*)ptr;
+		if (next->pNextFreeBlock != &Start && next != End) {
+			joinBlock(block);
+			
+		}
+
+		next = block;
+		block = block->pPrevBlock;
+		/*Try to join left*/
+		if (block != &Start && block->pNextFreeBlock != &Start) {
+			joinBlock(block);
+			
+		}
+		
 	}
-	
 
 }
 
@@ -180,6 +218,9 @@ void bMemFree(void *ptrToFree) {
 void *bMemRealloc(void *ptrToRealloc, uint16_t requestedSize) {
 	void *toReturn = NULL;	// pointer which will be returned
 	Mem_block *pBlock = NULL;
+	Mem_block *pNext;
+	Mem_block *pNewBlock;
+	Mem_block *pNextToNew;
 	char *ptr = (char*)ptrToRealloc;
 	char* pNew = (char*)ptrToRealloc;
 	int i;
@@ -199,29 +240,65 @@ void *bMemRealloc(void *ptrToRealloc, uint16_t requestedSize) {
 		ptr += MEM_BLOCK_SIZE + pBlock->blockSize;
 		pBlock = (Mem_block*)ptr;
 
-		if (pBlock->pNextFreeBlock == &Start) { 
+		if ((pBlock->pNextFreeBlock == &Start) || (i + pBlock->blockSize + MEM_BLOCK_SIZE < requestedSize)) {
 			needToCopy = 'Y'; 
 		}
 		else {
 			needToCopy = 'N';
 		}
 
-		if (i + pBlock->blockSize + MEM_BLOCK_SIZE < requestedSize) {
-			needToCopy = 'Y';
-		}
-
 		
 		/*If copying data is not needed*/
 		if (needToCopy == 'N') {
 
+			ptr = (char*)ptrToRealloc;
+			ptr -= MEM_BLOCK_SIZE;
+			pBlock = (Mem_block*)ptr;
+
+			ptr += MEM_BLOCK_SIZE + pBlock->blockSize;
+			pNext = (Mem_block*)ptr;
+
+			ptr += MEM_BLOCK_SIZE + pNext->blockSize;
+			pNextToNew = (Mem_block*)ptr;
+
 			/*If new block will not be created. New size matches size of actual block and size of next free block*/
 			if (i + pBlock->blockSize + MEM_BLOCK_SIZE == requestedSize) {
-				
+
+				i = pNext->blockSize;
+				deleteFromList(pNext);
+
+				pBlock->blockSize += i + MEM_BLOCK_SIZE;
+				pNextToNew->pPrevBlock = pBlock;
+
+				toReturn = (char*)pBlock + MEM_BLOCK_SIZE;
+
+				actFreeMem -= i;
 
 			}
 			/*New block will be created*/
 			else {
-			
+
+				ptr = (char*)ptrToRealloc;
+				ptr += requestedSize;
+				pNewBlock = (Mem_block*)ptr;
+
+				i = pNext->blockSize;
+				deleteFromList(pNext);
+
+				bPrintLinkedList();
+
+				pNewBlock->pPrevBlock = pBlock;
+				pNewBlock->blockSize = i - (requestedSize - pBlock->blockSize);
+				actFreeMem -= requestedSize - pBlock->blockSize;
+
+				pNextToNew->pPrevBlock = pBlock;
+
+				pBlock->blockSize = requestedSize;
+
+				insertNewBlock(pNewBlock);
+
+				toReturn = (char*)pBlock + MEM_BLOCK_SIZE;
+
 			}
 
 		}
@@ -266,64 +343,73 @@ void *bMemRealloc(void *ptrToRealloc, uint16_t requestedSize) {
 	}
 	
 
-	return toReturn;
+	return (void*)toReturn;
 }
 
-
-
-
-
-
 void bPrintLinkedList() {
-	Mem_block *iterator;
+	Mem_block *iterator = &Start;
 
 	printf("\n\nList of free memory blocks\n");
+	printf("Size of block %d\n", MEM_BLOCK_SIZE);
 
 	/*Iterates whole list and prints size of each block from Start to penultimate block*/
 	for (iterator = &Start; iterator->pNextFreeBlock != NULL; iterator = iterator->pNextFreeBlock) {
-		printf("Velkost bloku %d \n", iterator->blockSize);
+		printf("Block %d \n", iterator->blockSize);
 	}
 	/*Prints size of End block*/
-	printf("Velkost bloku %d \n", iterator->blockSize);
+	printf("Block %d \n", iterator->blockSize);
 
 	/*Prints real actual free memory */
 	printf("Celkovo volnej pamate je: %d \n", actFreeMem);
 }
 
-
-
-
 void bPrintWholeMemory() {
 	Mem_block *iterator = &Start;
-	int size = iterator->blockSize;
-	
 	char *ptr = (char*)iterator;
 
 	printf("\nList of all blocks of memory \n");
+	printf("Block %d START\n", iterator->blockSize);
+
 
 	while (1) {
+		ptr += (MEM_BLOCK_SIZE + iterator->blockSize);
+		iterator = (Mem_block*)ptr;
+
 		if (iterator->blockSize == FREE_SRAM) {
 			break;
 		}
-		size = iterator->blockSize;
 
 		if (iterator->pNextFreeBlock == &Start) {
-			printf("Velkost bloku %d ALLOCATED\n", size);
+			printf("Block %d ALLOCATED\n", iterator->blockSize);
 		}
 		else {
-			printf("Velkost bloku %d FREE\n", size);
+			printf("Block %d FREE\n", iterator->blockSize);
 		}
-		
-		ptr += (MEM_BLOCK_SIZE + size);
-
-		iterator = (Mem_block*)ptr;
 
 	}
 
-	printf("Velkost bloku %d \n", iterator->blockSize);
+	printf("Block %d END\n", iterator->blockSize);
+	printf("Toto free memory size: %d\n", actFreeMem);
 
 }
 
+void bPrintWholeMemoryReverse() {
+	Mem_block *iterator = End;
+
+	printf("\nReverse list of all blocks\n");
+	printf("Block %d END\n", iterator->blockSize);
+
+	for (iterator = iterator->pPrevBlock; iterator->pPrevBlock != NULL; iterator = iterator->pPrevBlock) {
+		if (iterator->pNextFreeBlock == &Start) {
+			printf("Block %d ALLOCATED\n", iterator->blockSize);
+		}
+		else {
+			printf("Block %d FREE\n", iterator->blockSize);
+		}
+	}
+
+	printf("Block %d START\n", iterator->blockSize);
+}
 
 
 /* Private functions */
@@ -341,18 +427,84 @@ static void insertNewBlock(Mem_block *pNewBlockToInsert) {
 	Mem_block *iterator = &Start;
 	Mem_block *pPrev;
 
-	/*Find the right place in list for block to be inserted*/
-	while (1) {
-		if (iterator->blockSize >= pNewBlockToInsert->blockSize) {
-			break;
-		}
-		pPrev = iterator;
-		iterator = iterator->pNextFreeBlock;
-	}
 
-	/*Insert block*/
-	pPrev->pNextFreeBlock = pNewBlockToInsert;
-	pNewBlockToInsert->pNextFreeBlock = iterator;
+	if (pNewBlockToInsert != NULL) {
+		/*Find the right place in list for block to be inserted*/
+		while (1) {
+			if (iterator->blockSize >= pNewBlockToInsert->blockSize) {
+				break;
+			}
+			pPrev = iterator;
+			iterator = iterator->pNextFreeBlock;
+		}
+
+		/*Insert block*/
+		pPrev->pNextFreeBlock = pNewBlockToInsert;
+		pNewBlockToInsert->pNextFreeBlock = iterator;
+
+	}
+	
+}
+
+
+/* 
+* Deletes block from linked list of free blocks. List stay oredered
+*
+* @param toDel Block which will be deleted from linked list
+*/
+static void deleteFromList(Mem_block* toDel) {
+	Mem_block *iterator = &Start;
+	Mem_block *pPrev;
+
+
+	if (toDel != NULL) {
+		/*Find place in list where toDel is stored*/
+		while (1) {
+			if (iterator == toDel) {
+				break;
+			}
+			pPrev = iterator;
+			iterator = iterator->pNextFreeBlock;
+		}
+
+		/*Delete block*/
+		pPrev->pNextFreeBlock = toDel->pNextFreeBlock;
+
+	}
+}
+
+
+/*
+* Join two blocks
+*/
+
+static void joinBlock(Mem_block *block) {
+	Mem_block *next;
+	char *ptr;
+
+	/*Get next physical block*/
+	ptr = (char*)block;
+	ptr += MEM_BLOCK_SIZE + block->blockSize;
+	next = (Mem_block*)ptr;
+
+	deleteFromList(block);
+	deleteFromList(next);
+	actFreeMem -= block->blockSize;
+	actFreeMem -= next->blockSize;
+
+	/*Make actual block bigger*/
+	block->blockSize += MEM_BLOCK_SIZE + next->blockSize;
+
+	/*Delete next block*/
+	ptr = (char*)next;
+	ptr += MEM_BLOCK_SIZE + next->blockSize;
+	next = (Mem_block*)ptr;
+
+	next->pPrevBlock = block;
+
+	/*Insert new block*/
+	insertNewBlock(block);
+	actFreeMem += block->blockSize;
 
 }
 

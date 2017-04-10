@@ -50,6 +50,7 @@ Defined structure for linked list, where are all blocks stored
 typedef struct MEM_BLOCK
 {
 	struct MEM_BLOCK *pNextFreeBlock; // pointer to next free block in list of free blocks
+	struct MEM_BLOCK *pPrevBlock;  // previous physical memory block
 	uint16_t blockSize; // size of actual block
 } Mem_block;
 
@@ -104,5 +105,12 @@ void bPrintLinkedList();
 * Print whole memory blocks
 */
 void bPrintWholeMemory();
+
+/*
+* Print whole physical memory reverse
+* This print is based on iterating through pointers which point to previous memory block
+* Starts at the End and iterates to the Start
+*/
+void bPrintWholeMemoryReverse();
 
 #endif
