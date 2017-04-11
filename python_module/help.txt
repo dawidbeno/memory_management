@@ -1,0 +1,9 @@
+Use these commands to control program:
+
+help - prints this help page
+
+setalg [algorithm type] - set algorithm type which will be used by tests
+     \'best\'
+     \'worst\'
+
+q - exit program
