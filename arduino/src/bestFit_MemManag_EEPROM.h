@@ -93,3 +93,6 @@ void bPrintWholeMemory();
 * Starts at the End and iterates to the Start
 */
 void bPrintWholeMemoryReverse();
+
+
+uint16_t getBlockSize(uint16_t ptr);

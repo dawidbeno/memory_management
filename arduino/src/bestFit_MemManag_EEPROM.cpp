@@ -524,7 +524,7 @@ void bPrintWholeMemory(){
   Serial.println("List of all blocks of memory");
 
   eeprom_read_block(&block, (uint16_t*)pAct, MEM_BLOCK_SIZE_B);
-  Serial.print("Block    addr: ");Serial.print(pAct);Serial.print("     size: ");Serial.print(block.blockSize);Serial.println(" START");
+  Serial.print("Block    addr: ");Serial.print(pAct);Serial.print("     size: ");Serial.print(block.blockSize);Serial.println("     START");
 
   while (1) {
 		pAct += (MEM_BLOCK_SIZE_B + block.blockSize);
@@ -535,15 +535,15 @@ void bPrintWholeMemory(){
 		}
 
 		if (block.pNextFreeBlock == StartAddress) {
-      Serial.print("Block    addr: ");Serial.print(pAct+MEM_BLOCK_SIZE_B);Serial.print("     size: ");Serial.print(block.blockSize);Serial.println(" ALLOCATED");
+      Serial.print("Block    addr: ");Serial.print(pAct+MEM_BLOCK_SIZE_B);Serial.print("     size: ");Serial.print(block.blockSize);Serial.println("      ALLOCATED");
 		}
 		else {
-			Serial.print("Block    addr: ");Serial.print(pAct+MEM_BLOCK_SIZE_B);Serial.print("     size: ");Serial.print(block.blockSize);Serial.println(" FREE");
+			Serial.print("Block    addr: ");Serial.print(pAct+MEM_BLOCK_SIZE_B);Serial.print("     size: ");Serial.print(block.blockSize);Serial.println("     FREE");
 		}
 
 	}
 
-	Serial.print("Block    addr: ");Serial.print(pAct);Serial.print("     size: ");Serial.print(block.blockSize);Serial.println(" END");
+	Serial.print("Block    addr: ");Serial.print(pAct);Serial.print("     size: ");Serial.print(block.blockSize);Serial.println("      END");
 	Serial.print("Remaining free memory: ");Serial.println(actFreeMem);
 
 }
@@ -573,4 +573,12 @@ void bPrintWholeMemoryReverse(){
     }
 
     Serial.print("Block ");Serial.print(block.blockSize);Serial.println(" START");
+}
+
+
+uint16_t getBlockSize(uint16_t ptr){
+  Mem_block block;
+  ptr -= MEM_BLOCK_SIZE_B;
+  eeprom_read_block(&block, (uint16_t*)ptr, MEM_BLOCK_SIZE_B);
+  return block.blockSize;
 }

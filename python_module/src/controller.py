@@ -189,10 +189,8 @@ def runStep(ui, step):
     if(type == "alloc"):
         allocateMem(ui, step)
     if(type == "free"):
-        ui.appendST("Request type:                   Free\n")
         freeMem(ui, step)
     if(type == "realloc"):
-        ui.appendST("Request type:                   Reallocation\n")
         reallocMem(ui, step)
 
 
@@ -213,7 +211,6 @@ def allocateMem(ui, step):
     elif (len(size) == 4):
         serialComm.write(b'4')
     serialComm.write(size)
-    ui.appendST("Size of requested block:  "+size+" B\n")
     while True:
         line = serialComm.readline()
         if (line.__contains__("SUCCESS") or line.__contains__("FAILED")):
@@ -232,9 +229,10 @@ def allocateMem(ui, step):
                 ui.appendST("Success rate of request:  Successful\n")
             elif(line.__contains__("FAILED")):
                 ui.appendST("Success rate of request:  Failed\n")
-            ui.appendST("Request satisfying time: "+str(duration)+" ms\n")
-            size = int(size)+MEM_BLOCK_SIZE
+            ui.appendST("Size of requested block:  " + str(size) + " B\n")
+            size = int(size) + MEM_BLOCK_SIZE
             ui.appendST("Real size of allocated block: "+str(size)+" B\n")
+            ui.appendST("Request satisfying time: " + str(duration) + " ms\n")
             ui.appendST("Beggining address of block: "+addr)
             break
         print line
@@ -244,6 +242,7 @@ def allocateMem(ui, step):
 def freeMem(ui, step):
     global serialComm
     print "Start test free"
+    ui.appendST("Request type:                   Free\n")
     ptr = step.split(' ')[1]
     ptr = ptr[3:]
     ptr = str(ptr)
@@ -261,7 +260,10 @@ def freeMem(ui, step):
         line = serialComm.readline()
         if (line.__contains__("Free complete")):
             print line
-            ui.appendST("FREE COMPLETE from freeMem")
+            duration = line.split(':')[2]
+            duration = duration[:-2]
+            ui.appendST("Success rate of request:   Successful\n")
+            ui.appendST("Request satisfying time: " + str(duration) + " ms\n")
             ADDRS[int(ptr)] = None
             break
         print line
@@ -271,6 +273,7 @@ def freeMem(ui, step):
 def reallocMem(ui, step):
     global serialComm
     print "Start test realloc"
+    ui.appendST("Request type:                   Reallocation\n")
     ptr = step.split(' ')[1]
     ptr = ptr[3:]
     ptr = str(ptr)
@@ -297,12 +300,19 @@ def reallocMem(ui, step):
     elif (len(size) == 4):
         serialComm.write(b'4')
     serialComm.write(size)
-
     while True:
         line = serialComm.readline()
         if (line.__contains__("Realloc complete")):
             print line
-            ui.appendST("Realloc success")
+            duration = line.split(':')[1]
+            addr = line.split(':')[2]
+            oldSize = line.split(':')[3]
+            oldSize = oldSize[:-2]
+            ui.appendST("Success rate of request:   Successful\n")
+            ui.appendST("Old size of block:      "+str(oldSize)+"B\n")
+            ui.appendST("New size of block:      "+str(size)+"B\n")
+            ui.appendST("Request satisfying time: " + str(duration) + " ms\n")
+            ui.appendST("Beginning address of new block: "+addr)
             break
         print line
         time.sleep(1)

@@ -134,9 +134,9 @@ void allocate(int size){
   if(actAlg == BEST){
 
     firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-    taskENTER_CRITICAL();
+
     ptr = bMemAlloc((uint16_t)size);
-    taskEXIT_CRITICAL();
+
     secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
     resTime = secondTime - firstTime;
 
@@ -168,9 +168,21 @@ void allocate(int size){
 
 
 void freeMem(int ptr){
+    uint16_t firstTime, secondTime, resTime;
+
+    firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+
+    bMemFree(ptrArray[ptr]);
+
+    secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    resTime = secondTime - firstTime;
+
     Serial.print("Free address:");Serial.println(ptrArray[ptr]);
     Serial.print("ptrArray: ");Serial.println(ptr);
-    bMemFree(ptrArray[ptr]);
+
+    Serial.print("Free complete:");
+    Serial.print("Time:");Serial.println(resTime);
+
     ptrArray[ptr] = 0;
 }
 
@@ -178,8 +190,23 @@ void freeMem(int ptr){
 
 void reallocMem(int ptr, int size){
     uint16_t ptrToRealloc = ptrArray[ptr];
+    uint16_t firstTime, secondTime, resTime;
+    uint16_t oldSize = getBlockSize(ptrToRealloc);
+
+    firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+
     uint16_t newPtr = bMemRealloc(ptrToRealloc, (uint16_t)size);
+
+    secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    resTime = secondTime - firstTime;
+
     ptrArray[ptr] = newPtr;
+
+    Serial.print("Realloc complete");
+    Serial.print(":");Serial.print(resTime);
+    Serial.print(":");Serial.print(newPtr);
+    Serial.print(":");Serial.println(oldSize);
+
 }
 
 
@@ -267,7 +294,7 @@ void TaskMain(void *pvParameters)  // This is a task.
 
         addr = atoi(numStr);
         freeMem(addr);
-        Serial.println("Free complete");
+
         counter = 0;
         continue;
       }
@@ -298,7 +325,7 @@ void TaskMain(void *pvParameters)  // This is a task.
         Serial.print("size: ");Serial.println(sizeToRealloc);
 
         reallocMem(ptr, sizeToRealloc);
-        Serial.println("Realloc complete");
+
 
         continue;
       }
