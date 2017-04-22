@@ -181,6 +181,16 @@ def nextStep(ui, step):
 # *********************************************
 
 def runStep(ui, step):
+    type = step.split(' ')[0]
+    if(type == "alloc"):
+        allocateMem(ui, step)
+    if(type == "free"):
+        freeMem(ui, step)
+    if(type == "realloc"):
+        print "realloc"
+
+
+def allocateMem(ui, step):
     global serialComm
     print "Start test allocation"
     size = step.split(' ')[1]
@@ -200,14 +210,45 @@ def runStep(ui, step):
         line = serialComm.readline()
         if (line.__contains__("SUCCESS") or line.__contains__("FAILED")):
             print line
+            index = line.split(':')[1]
+            index = index[:-2]
+            i = 0
+            while True:
+                if (ADDRS[i] == None):
+                    break
+                i += 1
+            ADDRS[i] = index
             ui.setST("ALOCATION SUCCESS from runStep")
             break
         print line
         time.sleep(0.1)
 
 
-
-
+def freeMem(ui, step):
+    global serialComm
+    print "Start test free"
+    ptr = step.split(' ')[1]
+    ptr = ptr[3:]
+    ptr = str(ptr)
+    serialComm.write(b'f')
+    if (len(ptr) == 1):
+        serialComm.write(b'1')
+    elif (len(ptr) == 2):
+        serialComm.write(b'2')
+    elif (len(ptr) == 3):
+        serialComm.write(b'3')
+    elif (len(ptr) == 4):
+        serialComm.write(b'4')
+    serialComm.write(ptr)
+    while True:
+        line = serialComm.readline()
+        if (line.__contains__("Free complete")):
+            print line
+            ui.appendST("FREE COMPLETE from freeMem")
+            ADDRS[int(ptr)] = None
+            break
+        print line
+        time.sleep(1)
 
 
 # ************************************************

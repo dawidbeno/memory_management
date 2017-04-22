@@ -138,7 +138,7 @@ class Ui_Form(object):
 
     def allSteps(self):
         numOfRemainingSteps = self.getNumOfRemainingSteps()
-        for x in range(0, numOfRemainingSteps-1):  # minus 2 because of first and last line in test file
+        for x in range(0, numOfRemainingSteps-2):  # minus 2 because of first and last line in test file
             self.nextStep()
             time.sleep(2)
 

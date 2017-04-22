@@ -76,6 +76,12 @@ void loop()
 /*--------------------------------------------------*/
 
 
+void clearPtrArr(){
+  for(int i=0; i<NUM_POINTERS; i++){
+    ptrArray[i] = 0;
+  }
+}
+
 
 /* Must be called before any allocation
   Memory is isInitialized
@@ -84,9 +90,11 @@ void loop()
 void initComm(){
   if(actAlg == BEST){
    bMemInit();
+   clearPtrArr();
     isInitialized = 1;
   }else{
     //wMemInit();
+    clearPtrArr();
     isInitialized = 1;
   }
 
@@ -101,9 +109,11 @@ void setAlg(char alg){
   actAlg = alg;
   if(actAlg == BEST){
     bMemInit();
+    clearPtrArr();
     isInitialized = 1;
   }else{
     //wMemInit();
+    clearPtrArr();
     isInitialized = 1;
   }
   if(isInitialized == 1){
@@ -112,17 +122,27 @@ void setAlg(char alg){
 }
 
 
+
+
+
+
 /* Provides test allocation*/
 void allocate(int size){
-  uint16_t arr;
+  uint16_t ptr;
+  int i;
   if(actAlg == BEST){
-    arr = bMemAlloc((uint16_t)size);
+    ptr = bMemAlloc((uint16_t)size);
+    while(ptrArray[i] != 0){
+      i++;
+    }
+    ptrArray[i] = ptr;
+
   }else if(actAlg == WORST){
     //arr = (char*)wMemAlloc(size);
   }
 
   if(ptrArray[0] != NONE){
-    Serial.println("Allocation SUCCESS");
+    Serial.print("Allocation SUCCESS:");Serial.println(i);
   }else{
     Serial.println("Allocation FAILED");
   }
@@ -131,7 +151,10 @@ void allocate(int size){
 
 
 void freeMem(int ptr){
+    Serial.print("Free address:");Serial.println(ptrArray[ptr]);
+    Serial.print("ptrArray: ");Serial.println(ptr);
     bMemFree(ptrArray[ptr]);
+    ptrArray[ptr] = 0;
 }
 
 
@@ -177,6 +200,7 @@ void TaskMain(void *pvParameters)  // This is a task.
       /*Set algorithm to WORST fit*/
       if(inChar == 'w'){
         setAlg(WORST);
+        counter = 0;
         continue;
       }
 
@@ -219,7 +243,7 @@ void TaskMain(void *pvParameters)  // This is a task.
         continue;
       }
 
-  
+      
 
       /*Prints list of free blocks. Memory must be initialized*/
       if(inChar == 'p' && isInitialized == 1){
