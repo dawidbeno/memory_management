@@ -14,6 +14,20 @@ ADDRS = [None]
 MEM_BLOCK_SIZE = 6
 
 
+numOfAllocs = 0
+numOfFrees = 0
+numOfReallocs = 0
+
+bestAllocTime = 9999
+worstAllocTime = 0
+
+bestFreeTime = 9999
+worstFreeTime = 0
+
+bestReallocTime = 9999
+worstReallocTime = 0
+
+
 # Arduino uses BEST fit as default algorithm
 
 
@@ -49,7 +63,19 @@ def init(ui):
 
 def setAlgorithm(ui, algType):
     global serialComm, BEST, WORST, ALGORITHM
-
+    global numOfAllocs, numOfFrees, numOfReallocs
+    global bestFreeTime, bestReallocTime, bestAllocTime
+    global worstFreeTime, worstReallocTime, worstAllocTime
+    numOfAllocs = 0
+    numOfFrees = 0
+    numOfReallocs = 0
+    bestAllocTime = 9999999
+    worstAllocTime = 0
+    bestFreeTime = 999999
+    worstFreeTime = 0
+    bestReallocTime = 999999
+    worstReallocTime = 0
+    ui.setST("")
     if(algType == BEST):
         serialComm.write(b'b')
         while True:
@@ -184,18 +210,23 @@ def nextStep(ui, step):
 # *********************************************
 
 def runStep(ui, step):
+    global numOfAllocs, numOfFrees, numOfReallocs
     ui.setST("")
     type = step.split(' ')[0]
     if(type == "alloc"):
+        numOfAllocs += 1
         allocateMem(ui, step)
     if(type == "free"):
+        numOfFrees += 1
         freeMem(ui, step)
     if(type == "realloc"):
+        numOfReallocs += 1
         reallocMem(ui, step)
 
 
 def allocateMem(ui, step):
     global serialComm
+    global bestAllocTime, worstAllocTime
     print "Start test allocation"
     ui.appendST("Request type:                   Allocation\n")
     size = step.split(' ')[1]
@@ -234,6 +265,10 @@ def allocateMem(ui, step):
             ui.appendST("Real size of allocated block: "+str(size)+" B\n")
             ui.appendST("Request satisfying time: " + str(duration) + " ms\n")
             ui.appendST("Beggining address of block: "+addr)
+            if(int(duration) <= bestAllocTime):
+                bestAllocTime = duration
+            if(int(duration) >= worstAllocTime):
+                worstAllocTime = duration
             break
         print line
         time.sleep(0.1)
@@ -241,6 +276,7 @@ def allocateMem(ui, step):
 
 def freeMem(ui, step):
     global serialComm
+    global bestFreeTime, worstFreeTime
     print "Start test free"
     ui.appendST("Request type:                   Free\n")
     ptr = step.split(' ')[1]
@@ -265,6 +301,10 @@ def freeMem(ui, step):
             ui.appendST("Success rate of request:   Successful\n")
             ui.appendST("Request satisfying time: " + str(duration) + " ms\n")
             ADDRS[int(ptr)] = None
+            if (int(duration) <= bestFreeTime):
+                bestFreeTime = duration
+            if (int(duration) >= worstFreeTime):
+                worstFreeTime = duration
             break
         print line
         time.sleep(1)
@@ -272,6 +312,7 @@ def freeMem(ui, step):
 
 def reallocMem(ui, step):
     global serialComm
+    global bestReallocTime, worstReallocTime
     print "Start test realloc"
     ui.appendST("Request type:                   Reallocation\n")
     ptr = step.split(' ')[1]
@@ -313,6 +354,10 @@ def reallocMem(ui, step):
             ui.appendST("New size of block:      "+str(size)+"B\n")
             ui.appendST("Request satisfying time: " + str(duration) + " ms\n")
             ui.appendST("Beginning address of new block: "+addr)
+            if (int(duration) <= bestReallocTime):
+                bestReallocTime = duration
+            if (int(duration) >= worstReallocTime):
+                worstReallocTime = duration
             break
         print line
         time.sleep(1)
@@ -338,6 +383,21 @@ def printMemory(ui):
         print line
         time.sleep(0.1)
 
+
+def showAllStats(ui):
+    global numOfAllocs, numOfFrees, numOfReallocs
+    global bestFreeTime, bestReallocTime, bestAllocTime
+    global worstFreeTime, worstReallocTime, worstAllocTime
+    ui.setST("")
+    ui.appendST("Best alloc time: "+str(bestAllocTime)+"ms")
+    ui.appendST("Worst alloc time: "+str(worstAllocTime)+"ms")
+    ui.appendST("")
+    ui.appendST("Best free time: " + str(bestFreeTime)+"ms")
+    ui.appendST("Worst free time: " + str(worstFreeTime)+"ms")
+    ui.appendST("")
+    ui.appendST("Best realloc time: " + str(bestReallocTime)+"ms")
+    ui.appendST("Worst realloc time: " + str(worstReallocTime)+"ms")
+    ui.appendST("")
 
 
 

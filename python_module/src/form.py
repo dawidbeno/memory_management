@@ -9,6 +9,7 @@
 from PyQt4 import QtCore, QtGui
 import controller
 import time
+import thread
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -139,6 +140,7 @@ class Ui_Form(object):
         if(step):
             controller.nextStep(self, step)
 
+
     def allSteps(self):
         numOfRemainingSteps = self.getNumOfRemainingSteps()
         for x in range(0, numOfRemainingSteps-2):  # minus 2 because of first and last line in test file
@@ -170,7 +172,7 @@ class Ui_Form(object):
         stepLength = len(step)
         if (stepLength < 1):
             print "No step loaded"
-            self.setST("No step loaded")
+            controller.showAllStats(self)
             return
         wholeTest = wholeTest[(stepLength+1):]
         self.setAT(wholeTest)
@@ -186,6 +188,9 @@ class Ui_Form(object):
 
     def setAlgWorst(self):
         controller.setAlgorithm(self, controller.WORST)
+
+
+
 
     # ******  PRINT METHODS  *********
 
@@ -212,3 +217,4 @@ class Ui_Form(object):
 
     def setAT(self, str):
         self.tbActTest.setText(str)
+

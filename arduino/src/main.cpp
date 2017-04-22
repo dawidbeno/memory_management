@@ -19,6 +19,7 @@
 #include <stdlib.h>
 
 #include <bestFit_MemManag_EEPROM.h>
+#include <worstFit_MemManag_EEPROM.h>
 
 void TaskMain( void *pvParameters );
 void TaskTestBlink( void *pvParameters );
@@ -93,7 +94,7 @@ void initComm(){
    clearPtrArr();
     isInitialized = 1;
   }else{
-    //wMemInit();
+    wMemInit();
     clearPtrArr();
     isInitialized = 1;
   }
@@ -112,7 +113,7 @@ void setAlg(char alg){
     clearPtrArr();
     isInitialized = 1;
   }else{
-    //wMemInit();
+    wMemInit();
     clearPtrArr();
     isInitialized = 1;
   }
@@ -132,24 +133,20 @@ void allocate(int size){
   int i;
 
   if(actAlg == BEST){
-
     firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-
     ptr = bMemAlloc((uint16_t)size);
-
     secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
     resTime = secondTime - firstTime;
-
     while(ptrArray[i] != 0){
       i++;
     }
     ptrArray[i] = ptr;
 
   }else if(actAlg == WORST){
-    // odmerat cas
-    //arr = (char*)wMemAlloc(size);
-    // odmerat constants
-    //odpocitat
+    firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    ptr = wMemAlloc((uint16_t)size);
+    secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    resTime = secondTime - firstTime;
     while(ptrArray[i] != 0){
       i++;
     }
@@ -170,12 +167,19 @@ void allocate(int size){
 void freeMem(int ptr){
     uint16_t firstTime, secondTime, resTime;
 
-    firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    if(actAlg == BEST){
+      firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+      bMemFree(ptrArray[ptr]);
+      secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+      resTime = secondTime - firstTime;
 
-    bMemFree(ptrArray[ptr]);
+    }else if(actAlg == WORST){
+      firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+      wMemFree(ptrArray[ptr]);
+      secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+      resTime = secondTime - firstTime;
+    }
 
-    secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-    resTime = secondTime - firstTime;
 
     Serial.print("Free address:");Serial.println(ptrArray[ptr]);
     Serial.print("ptrArray: ");Serial.println(ptr);
@@ -190,15 +194,21 @@ void freeMem(int ptr){
 
 void reallocMem(int ptr, int size){
     uint16_t ptrToRealloc = ptrArray[ptr];
-    uint16_t firstTime, secondTime, resTime;
+    uint16_t firstTime, secondTime, resTime, newPtr;
     uint16_t oldSize = getBlockSize(ptrToRealloc);
 
-    firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    if(actAlg == BEST){
+      firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+      newPtr = bMemRealloc(ptrToRealloc, (uint16_t)size);
+      secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+      resTime = secondTime - firstTime;
+    }else if(actAlg == WORST){
+      firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+      newPtr = wMemRealloc(ptrToRealloc, (uint16_t)size);
+      secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+      resTime = secondTime - firstTime;
+    }
 
-    uint16_t newPtr = bMemRealloc(ptrToRealloc, (uint16_t)size);
-
-    secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-    resTime = secondTime - firstTime;
 
     ptrArray[ptr] = newPtr;
 
@@ -334,16 +344,14 @@ void TaskMain(void *pvParameters)  // This is a task.
       /*Prints list of free blocks. Memory must be initialized*/
       if(inChar == 'p' && isInitialized == 1){
         if(actAlg == BEST){
-        //  bPrintLinkedList();
           bPrintWholeMemory();
           Serial.println("Finish");
           continue;
         }
         if(actAlg == WORST){
-          //wPrintLinkedList();
-          //wPrintLinkedList();
+          wPrintWholeMemory();
           Serial.println("Finish");
-          counter = 0;
+          continue;
         }
       }else if(isInitialized == 0){
         Serial.println("Memory was not initialized");
