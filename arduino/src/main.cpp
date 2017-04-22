@@ -158,6 +158,18 @@ void freeMem(int ptr){
 }
 
 
+
+void reallocMem(int ptr, int size){
+    uint16_t ptrToRealloc = ptrArray[ptr];
+    uint16_t newPtr = bMemRealloc(ptrToRealloc, (uint16_t)size);
+    ptrArray[ptr] = newPtr;
+}
+
+
+
+
+
+
 /*--------------------------------------------------*/
 /*---------------------- Tasks ---------------------*/
 /*--------------------------------------------------*/
@@ -243,7 +255,37 @@ void TaskMain(void *pvParameters)  // This is a task.
         continue;
       }
 
-      
+      /*Realloc block*/
+      if(inChar == 'r'){
+        // get pointer
+        char pocChar = (char)Serial.read(); //number of digits in number
+        int poc = pocChar - '0';
+        char numStr[poc];
+        int i, ptr;
+        for(i=0; i<poc; i++){
+          numStr[i] = (char)Serial.read();
+        }
+        ptr = atoi(numStr);
+
+        // get size
+        char pocChar2 = (char)Serial.read(); //number of digits in number
+        int poc2 = pocChar2 - '0';
+        char numStr2[poc];
+        int j, sizeToRealloc;
+        for(j=0; j<poc2; j++){
+          numStr2[j] = (char)Serial.read();
+        }
+        sizeToRealloc = atoi(numStr2);
+
+        Serial.print("ptr: ");Serial.println(ptr);
+        Serial.print("size: ");Serial.println(sizeToRealloc);
+
+        reallocMem(ptr, sizeToRealloc);
+        Serial.println("Realloc complete");
+
+        continue;
+      }
+
 
       /*Prints list of free blocks. Memory must be initialized*/
       if(inChar == 'p' && isInitialized == 1){

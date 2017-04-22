@@ -187,7 +187,7 @@ def runStep(ui, step):
     if(type == "free"):
         freeMem(ui, step)
     if(type == "realloc"):
-        print "realloc"
+        reallocMem(ui, step)
 
 
 def allocateMem(ui, step):
@@ -246,6 +246,46 @@ def freeMem(ui, step):
             print line
             ui.appendST("FREE COMPLETE from freeMem")
             ADDRS[int(ptr)] = None
+            break
+        print line
+        time.sleep(1)
+
+
+def reallocMem(ui, step):
+    global serialComm
+    print "Start test realloc"
+    ptr = step.split(' ')[1]
+    ptr = ptr[3:]
+    ptr = str(ptr)
+    size = step.split(' ')[2]
+    size = str(size)
+
+    serialComm.write(b'r')
+    if (len(ptr) == 1):
+        serialComm.write(b'1')
+    elif (len(ptr) == 2):
+        serialComm.write(b'2')
+    elif (len(ptr) == 3):
+        serialComm.write(b'3')
+    elif (len(ptr) == 4):
+        serialComm.write(b'4')
+    serialComm.write(ptr)
+
+    if (len(size) == 1):
+        serialComm.write(b'1')
+    elif (len(size) == 2):
+        serialComm.write(b'2')
+    elif (len(size) == 3):
+        serialComm.write(b'3')
+    elif (len(size) == 4):
+        serialComm.write(b'4')
+    serialComm.write(size)
+
+    while True:
+        line = serialComm.readline()
+        if (line.__contains__("Realloc complete")):
+            print line
+            ui.appendST("Realloc success")
             break
         print line
         time.sleep(1)
