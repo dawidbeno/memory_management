@@ -128,21 +128,38 @@ void setAlg(char alg){
 
 /* Provides test allocation*/
 void allocate(int size){
-  uint16_t ptr;
+  uint16_t ptr, firstTime, secondTime, resTime;
   int i;
+
   if(actAlg == BEST){
+
+    firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    taskENTER_CRITICAL();
     ptr = bMemAlloc((uint16_t)size);
+    taskEXIT_CRITICAL();
+    secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    resTime = secondTime - firstTime;
+
     while(ptrArray[i] != 0){
       i++;
     }
     ptrArray[i] = ptr;
 
   }else if(actAlg == WORST){
+    // odmerat cas
     //arr = (char*)wMemAlloc(size);
+    // odmerat constants
+    //odpocitat
+    while(ptrArray[i] != 0){
+      i++;
+    }
+    ptrArray[i] = ptr;
   }
 
   if(ptrArray[0] != NONE){
-    Serial.print("Allocation SUCCESS:");Serial.println(i);
+    Serial.print("Allocation SUCCESS:");Serial.print(i);
+    Serial.print(":");Serial.print(ptr);
+    Serial.print(":");Serial.println(resTime);
   }else{
     Serial.println("Allocation FAILED");
   }

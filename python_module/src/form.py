@@ -106,10 +106,14 @@ class Ui_Form(object):
 
         QtCore.QObject.connect(self.btnNextStep, QtCore.SIGNAL(_fromUtf8("clicked()")), self.nextStep)
         QtCore.QObject.connect(self.btnRunAll, QtCore.SIGNAL(_fromUtf8("clicked()")), self.allSteps)
+
+        QtCore.QObject.connect(self.btnSetBest, QtCore.SIGNAL(_fromUtf8("clicked()")), self.setAlgBest)
+        QtCore.QObject.connect(self.btnSetWorst, QtCore.SIGNAL(_fromUtf8("clicked()")), self.setAlgWorst)
+
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(_translate("Form", "Form", None))
+        Form.setWindowTitle(_translate("Form", "Testing platform", None))
         self.lbLTL.setText(_translate("Form", "Load testing level :", None))
         self.btnLoadLvl1.setText(_translate("Form", "1. level", None))
         self.btnLoadLvl2.setText(_translate("Form", "2. level", None))
@@ -133,8 +137,7 @@ class Ui_Form(object):
     def nextStep(self):
         step = self.getStep()
         if(step):
-            res = controller.nextStep(self, step)
-            self.appendST(res)
+            controller.nextStep(self, step)
 
     def allSteps(self):
         numOfRemainingSteps = self.getNumOfRemainingSteps()
@@ -178,8 +181,11 @@ class Ui_Form(object):
         steps = test.split('\n')
         return len(steps)
 
+    def setAlgBest(self):
+        controller.setAlgorithm(self, controller.BEST)
 
-
+    def setAlgWorst(self):
+        controller.setAlgorithm(self, controller.WORST)
 
     # ******  PRINT METHODS  *********
 

@@ -11,6 +11,8 @@ WORST = 'w'
 ALGORITHM = BEST
 ADDRS = [None]
 
+MEM_BLOCK_SIZE = 6
+
 
 # Arduino uses BEST fit as default algorithm
 
@@ -60,6 +62,7 @@ def setAlgorithm(ui, algType):
                     print "Set alg to BEST"
                     ui.appendST("Algorithm is set to BEST")
                     ui.setAlg(BEST)
+                    printMemory(ui)
                     break
             print "waiting to set algorithm ..."
             time.sleep(0.1)
@@ -76,6 +79,7 @@ def setAlgorithm(ui, algType):
                     print "Set alg to WORST"
                     ui.appendST("Algorithm is set to WORST")
                     ui.setAlg(WORST)
+                    printMemory(ui)
                     break
             print "waiting to set algorithm ..."
             time.sleep(0.1)
@@ -168,7 +172,6 @@ def nextStep(ui, step):
     runStep(ui, step)
     time.sleep(2)
     printMemory(ui)
-    return "SUCCESS"
 
 
 
@@ -181,18 +184,22 @@ def nextStep(ui, step):
 # *********************************************
 
 def runStep(ui, step):
+    ui.setST("")
     type = step.split(' ')[0]
     if(type == "alloc"):
         allocateMem(ui, step)
     if(type == "free"):
+        ui.appendST("Request type:                   Free\n")
         freeMem(ui, step)
     if(type == "realloc"):
+        ui.appendST("Request type:                   Reallocation\n")
         reallocMem(ui, step)
 
 
 def allocateMem(ui, step):
     global serialComm
     print "Start test allocation"
+    ui.appendST("Request type:                   Allocation\n")
     size = step.split(' ')[1]
     size = str(size)
     serialComm.write(b'a')
@@ -206,19 +213,29 @@ def allocateMem(ui, step):
     elif (len(size) == 4):
         serialComm.write(b'4')
     serialComm.write(size)
+    ui.appendST("Size of requested block:  "+size+" B\n")
     while True:
         line = serialComm.readline()
         if (line.__contains__("SUCCESS") or line.__contains__("FAILED")):
             print line
             index = line.split(':')[1]
-            index = index[:-2]
+            addr = line.split(':')[2]
+            duration = line.split(':')[3]
+            duration = duration[:-2]
             i = 0
             while True:
                 if (ADDRS[i] == None):
                     break
                 i += 1
             ADDRS[i] = index
-            ui.setST("ALOCATION SUCCESS from runStep")
+            if(line.__contains__("SUCCESS")):
+                ui.appendST("Success rate of request:  Successful\n")
+            elif(line.__contains__("FAILED")):
+                ui.appendST("Success rate of request:  Failed\n")
+            ui.appendST("Request satisfying time: "+str(duration)+" ms\n")
+            size = int(size)+MEM_BLOCK_SIZE
+            ui.appendST("Real size of allocated block: "+str(size)+" B\n")
+            ui.appendST("Beggining address of block: "+addr)
             break
         print line
         time.sleep(0.1)
