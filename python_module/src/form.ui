@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1011</width>
-    <height>675</height>
+    <width>778</width>
+    <height>707</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="lbLTL">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -31,12 +31,12 @@
     <string>Load testing level :</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="btnLoadLvl1">
    <property name="geometry">
     <rect>
      <x>180</x>
      <y>20</y>
-     <width>121</width>
+     <width>91</width>
      <height>41</height>
     </rect>
    </property>
@@ -44,12 +44,12 @@
     <string>1. level</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="btnLoadLvl2">
    <property name="geometry">
     <rect>
-     <x>340</x>
+     <x>280</x>
      <y>20</y>
-     <width>121</width>
+     <width>101</width>
      <height>41</height>
     </rect>
    </property>
@@ -57,12 +57,12 @@
     <string>2. level</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_3">
+  <widget class="QPushButton" name="btnLoadLvl3">
    <property name="geometry">
     <rect>
-     <x>500</x>
+     <x>390</x>
      <y>20</y>
-     <width>121</width>
+     <width>101</width>
      <height>41</height>
     </rect>
    </property>
@@ -70,12 +70,12 @@
     <string>3. level</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_4">
+  <widget class="QPushButton" name="btnLoadLvl4">
    <property name="geometry">
     <rect>
-     <x>660</x>
+     <x>500</x>
      <y>20</y>
-     <width>121</width>
+     <width>101</width>
      <height>41</height>
     </rect>
    </property>
@@ -83,10 +83,10 @@
     <string>4.level</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_2">
+  <widget class="QLabel" name="lbMV">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>400</x>
      <y>80</y>
      <width>181</width>
      <height>31</height>
@@ -101,7 +101,7 @@
     <string>Memory visualization : </string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_3">
+  <widget class="QLabel" name="lbAT">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -119,7 +119,7 @@
     <string>Actual test :</string>
    </property>
   </widget>
-  <widget class="QTextBrowser" name="textBrowser">
+  <widget class="QTextBrowser" name="tbActTest">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -136,7 +136,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_5">
+  <widget class="QPushButton" name="btnNextStep">
    <property name="geometry">
     <rect>
      <x>220</x>
@@ -151,16 +151,16 @@ p, li { white-space: pre-wrap; }
     </font>
    </property>
    <property name="text">
-    <string>Next </string>
+    <string>Next step</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_6">
+  <widget class="QPushButton" name="btnRunAll">
    <property name="geometry">
     <rect>
      <x>220</x>
      <y>430</y>
      <width>131</width>
-     <height>41</height>
+     <height>51</height>
     </rect>
    </property>
    <property name="font">
@@ -172,31 +172,31 @@ p, li { white-space: pre-wrap; }
     <string>Run all</string>
    </property>
   </widget>
-  <widget class="QTextBrowser" name="textBrowser_2">
+  <widget class="QTextBrowser" name="tbMemVisual">
+   <property name="geometry">
+    <rect>
+     <x>400</x>
+     <y>120</y>
+     <width>341</width>
+     <height>541</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QTextBrowser" name="tbStats">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>120</y>
-     <width>991</width>
-     <height>192</height>
+     <width>341</width>
+     <height>191</height>
     </rect>
    </property>
   </widget>
-  <widget class="QTextBrowser" name="textBrowser_3">
+  <widget class="QLabel" name="lbStats">
    <property name="geometry">
     <rect>
-     <x>430</x>
-     <y>350</y>
-     <width>551</width>
-     <height>301</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_4">
-   <property name="geometry">
-    <rect>
-     <x>430</x>
-     <y>320</y>
+     <x>10</x>
+     <y>90</y>
      <width>101</width>
      <height>17</height>
     </rect>
@@ -208,6 +208,50 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Statistics :</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lbActAlg">
+   <property name="geometry">
+    <rect>
+     <x>670</x>
+     <y>90</y>
+     <width>71</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Act alg</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnSetBest">
+   <property name="geometry">
+    <rect>
+     <x>640</x>
+     <y>10</y>
+     <width>99</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>BEST FIT</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnSetWorst">
+   <property name="geometry">
+    <rect>
+     <x>640</x>
+     <y>40</y>
+     <width>99</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>WORST FIT</string>
    </property>
   </widget>
  </widget>

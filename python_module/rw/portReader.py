@@ -1,7 +1,7 @@
 import serial
 import time
 
-ser = serial.Serial('COM3', 9600, timeout=0)
+ser = serial.Serial('/dev/ttyACM0', 9600)
 
 while 1:
     try:

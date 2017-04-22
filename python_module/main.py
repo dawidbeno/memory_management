@@ -46,7 +46,7 @@ def setalg(algType):
             if(var.__contains__("Alg changed to:")):
                 var2 = var.split(':')[1]
                 var = var2[0]
-                if(var == '0'):
+                if(var == 'b'):
                     ALGORITHM = "BEST"
                     print "Set alg to BEST"
                     break
@@ -60,7 +60,7 @@ def setalg(algType):
             if (var.__contains__("Alg changed to:")):
                 var2 = var.split(':')[1]
                 var = var2[0]
-                if(var == '1'):
+                if(var == 'w'):
                     ALGORITHM = "WORST"
                     print "Set alg to WORST"
                     break
@@ -110,6 +110,27 @@ def testAlloc(size):
         time.sleep(1)
 
 
+def testFree(ptr):
+    global ser
+    print "Start test free"
+    ser.write(b'f')
+    if (len(ptr) == 1):
+        ser.write(b'1')
+    elif (len(ptr) == 2):
+        ser.write(b'2')
+    elif (len(ptr) == 3):
+        ser.write(b'3')
+    elif (len(ptr) == 4):
+        ser.write(b'4')
+    ser.write(ptr)
+    while True:
+        line = ser.readline()
+        if(line.__contains__("Free complete")):
+            print line
+            break
+        print line
+        time.sleep(1)
+
 # must be loaded first
 def startTest():
     global test
@@ -128,7 +149,7 @@ def showMemoryState():
     while True:
         line = ser.readline()
         print line
-        if(line.__contains__("Celkovo")):
+        if(line.__contains__("Finish")):
             break
         time.sleep(1)
 
@@ -184,6 +205,13 @@ def main():
                 testAlloc(space)
             except Exception:
                 print "No spece requested"
+                print "Undefined command, type \"help\" for more info"
+        elif(cmd.__contains__("free")):
+            try:
+                addr = cmd.split(' ')[1]
+                testFree(addr)
+            except Exception:
+                print "Bad free"
                 print "Undefined command, type \"help\" for more info"
         elif(cmd == "q"):
             print ""
