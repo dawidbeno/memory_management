@@ -64,7 +64,7 @@ uint16_t bMemAlloc(uint16_t requestedSize){
     uint16_t newAddr;
 
     /* Cannot allocate 0 bytes*/
-	if (requestedSize < 0) {
+	if (requestedSize <= 0) {
 		return NONE;
 	}
 
@@ -87,7 +87,7 @@ uint16_t bMemAlloc(uint16_t requestedSize){
 
         /* Finding best block to allocate*/
   		while ((pAct.pNextFreeBlock != NONE) && (pAct.blockSize <= requestedSize)) {
-
+        Serial.println("HLADAM");
   			/*Free block is found*/
   			if (pAct.blockSize == (requestedSize - MEM_BLOCK_SIZE_B) || pAct.blockSize == requestedSize ) {
   				break;
@@ -178,7 +178,7 @@ uint16_t bMemRealloc(uint16_t ptrToRealloc, uint16_t requestedSize){
     uint16_t i;
     char needToCopy = 'N';
 
-    if (requestedSize < 0) {
+    if (requestedSize <= 0) {
 		    return NONE;
 	  }
 
@@ -304,10 +304,11 @@ uint16_t bMemRealloc(uint16_t ptrToRealloc, uint16_t requestedSize){
 }
 
 
-void bMemFree(uint16_t ptrToFree){
+int bMemFree(uint16_t ptrToFree){
   uint16_t blockAddr;
   uint16_t nextAddr;
   uint16_t ptr = ptrToFree;
+  int numOfJoins = 0;
   Mem_block block, next;
 
   if(ptrToFree < EEPROM){
@@ -333,6 +334,7 @@ void bMemFree(uint16_t ptrToFree){
 
 		if (next.pNextFreeBlock != StartAddress && nextAddr != EndAddress) {
 			joinBlock(blockAddr, block);
+      numOfJoins++;
 		}
 
     next = block;
@@ -344,11 +346,12 @@ void bMemFree(uint16_t ptrToFree){
 		/*Try to join left*/
 		if (blockAddr != StartAddress && block.pNextFreeBlock != StartAddress) {
 			joinBlock(blockAddr, block);
+      numOfJoins++;
 		}
 
   }
 
-
+return numOfJoins;
 }
 
 
@@ -471,7 +474,9 @@ static void clearMem(){
   }
 }
 
-
+uint16_t getRamainingMem(){
+  return actFreeMem;
+}
 
 
 

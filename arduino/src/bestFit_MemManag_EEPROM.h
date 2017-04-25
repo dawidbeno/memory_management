@@ -62,7 +62,7 @@ uint16_t bMemAlloc(unsigned int requestedSize);
 *
 @param ptrToFree Pointer to memory which will be set free
 */
-void bMemFree(uint16_t ptrToFree);
+int bMemFree(uint16_t ptrToFree);
 
 
 /*
@@ -96,3 +96,5 @@ void bPrintWholeMemoryReverse();
 
 
 uint16_t getBlockSize(uint16_t ptr);
+
+uint16_t getRamainingMem();

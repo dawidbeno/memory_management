@@ -8,15 +8,22 @@ serialComm = None
 BEST = 'b'
 WORST = 'w'
 
+
 ALGORITHM = BEST
 ADDRS = [None]
 
 MEM_BLOCK_SIZE = 6
-
+remainingMem = 0
+wholeMem = 4096
 
 numOfAllocs = 0
+sucAllocs = 0
+
 numOfFrees = 0
+sucFrees = 0
+
 numOfReallocs = 0
+sucReallocs = 0
 
 bestAllocTime = 9999
 worstAllocTime = 0
@@ -27,6 +34,10 @@ worstFreeTime = 0
 bestReallocTime = 9999
 worstReallocTime = 0
 
+maxAllocBlock = 0
+minAllocBlock = 5000
+sizeCount = 0
+avarageAllocBlock = 5000
 
 # Arduino uses BEST fit as default algorithm
 
@@ -64,17 +75,26 @@ def init(ui):
 def setAlgorithm(ui, algType):
     global serialComm, BEST, WORST, ALGORITHM
     global numOfAllocs, numOfFrees, numOfReallocs
+    global sucAllocs, sucFrees, sucReallocs
     global bestFreeTime, bestReallocTime, bestAllocTime
     global worstFreeTime, worstReallocTime, worstAllocTime
+    global maxAllocBlock, minAllocBlock, avarageAllocBlock, sizeCount
     numOfAllocs = 0
     numOfFrees = 0
     numOfReallocs = 0
-    bestAllocTime = 9999999
+    sucAllocs = 0
+    sucFrees = 0
+    sucReallocs = 0
+    bestAllocTime = 9999
     worstAllocTime = 0
-    bestFreeTime = 999999
+    bestFreeTime = 9999
     worstFreeTime = 0
-    bestReallocTime = 999999
+    bestReallocTime = 99999
     worstReallocTime = 0
+    maxAllocBlock = 0
+    minAllocBlock = 9999
+    avarageAllocBlock = 9999
+    sizeCount = 0
     ui.setST("")
     if(algType == BEST):
         serialComm.write(b'b')
@@ -226,13 +246,13 @@ def runStep(ui, step):
 
 def allocateMem(ui, step):
     global serialComm
-    global bestAllocTime, worstAllocTime
-    print "Start test allocation"
+    global bestAllocTime, worstAllocTime, sucAllocs
+    global maxAllocBlock, minAllocBlock, avarageAllocBlock, sizeCount
+    print "\n **** Start test allocation ****"
     ui.appendST("Request type:                   Allocation\n")
     size = step.split(' ')[1]
     size = str(size)
     serialComm.write(b'a')
-    # serial.write(len(size)) NEFUNGUJE a neviem preco :(
     if (len(size) == 1):
         serialComm.write(b'1')
     elif (len(size) == 2):
@@ -246,37 +266,51 @@ def allocateMem(ui, step):
         line = serialComm.readline()
         if (line.__contains__("SUCCESS") or line.__contains__("FAILED")):
             print line
-            index = line.split(':')[1]
-            addr = line.split(':')[2]
-            duration = line.split(':')[3]
-            duration = duration[:-2]
-            i = 0
-            while True:
-                if (ADDRS[i] == None):
-                    break
-                i += 1
-            ADDRS[i] = index
             if(line.__contains__("SUCCESS")):
                 ui.appendST("Success rate of request:  Successful\n")
+                sucAllocs += 1
+                index = line.split(':')[1]
+                addr = line.split(':')[2]
+                duration = line.split(':')[3]
+                duration = duration[:-2]
+                i = 0
+                while True:
+                    if (ADDRS[i] == None):
+                        break
+                    i += 1
+                ADDRS[i] = index
+                ui.appendST("Size of requested block:  " + str(size) + " B\n")
+                size = int(size) + MEM_BLOCK_SIZE
+                ui.appendST("Real size of allocated block: " + str(size) + " B\n")
+                ui.appendST("Request satisfying time: " + str(duration) + " ms\n")
+                ui.appendST("Beggining address of block: " + addr)
+                if (int(duration) <= bestAllocTime):
+                    bestAllocTime = int(duration)
+                if (int(duration) >= worstAllocTime):
+                    worstAllocTime = int(duration)
+                print "DURATION: %d" % int(duration)
+                if(int(size) < minAllocBlock):
+                    minAllocBlock = int(size)
+                if(int(size) > maxAllocBlock):
+                    maxAllocBlock = int(size)
+                sizeCount += int(size)
+                avarageAllocBlock = (sizeCount / numOfAllocs)
             elif(line.__contains__("FAILED")):
                 ui.appendST("Success rate of request:  Failed\n")
-            ui.appendST("Size of requested block:  " + str(size) + " B\n")
-            size = int(size) + MEM_BLOCK_SIZE
-            ui.appendST("Real size of allocated block: "+str(size)+" B\n")
-            ui.appendST("Request satisfying time: " + str(duration) + " ms\n")
-            ui.appendST("Beggining address of block: "+addr)
-            if(int(duration) <= bestAllocTime):
-                bestAllocTime = duration
-            if(int(duration) >= worstAllocTime):
-                worstAllocTime = duration
+                remainigMem = line.split(':')[1]
+                if(int(remainigMem) > int(size)+MEM_BLOCK_SIZE):
+                    ui.appendST("Fail has been caused due to external fragmentation:")
+                    ui.appendST("Requested size: " + str(size) + "B   Remaining memory: "+ str(remainigMem)+"B")
+                    ui.appendST("Memory is divided into small blocks\n")
             break
         print line
-        time.sleep(0.1)
+        time.sleep(0.5)
 
 
 def freeMem(ui, step):
     global serialComm
-    global bestFreeTime, worstFreeTime
+    global bestFreeTime, worstFreeTime, sucFrees
+    numOfJoins = 0
     print "Start test free"
     ui.appendST("Request type:                   Free\n")
     ptr = step.split(' ')[1]
@@ -296,15 +330,18 @@ def freeMem(ui, step):
         line = serialComm.readline()
         if (line.__contains__("Free complete")):
             print line
+            sucFrees += 1
             duration = line.split(':')[2]
-            duration = duration[:-2]
+            numOfJoins = line.split(':')[3]
+            numOfJoins = numOfJoins[:-2]
             ui.appendST("Success rate of request:   Successful\n")
             ui.appendST("Request satisfying time: " + str(duration) + " ms\n")
+            ui.appendST("Number of block joins: "+str(numOfJoins)+"\n")
             ADDRS[int(ptr)] = None
             if (int(duration) <= bestFreeTime):
-                bestFreeTime = duration
+                bestFreeTime = int(duration)
             if (int(duration) >= worstFreeTime):
-                worstFreeTime = duration
+                worstFreeTime = int(duration)
             break
         print line
         time.sleep(1)
@@ -312,7 +349,7 @@ def freeMem(ui, step):
 
 def reallocMem(ui, step):
     global serialComm
-    global bestReallocTime, worstReallocTime
+    global bestReallocTime, worstReallocTime, sucReallocs
     print "Start test realloc"
     ui.appendST("Request type:                   Reallocation\n")
     ptr = step.split(' ')[1]
@@ -345,6 +382,7 @@ def reallocMem(ui, step):
         line = serialComm.readline()
         if (line.__contains__("Realloc complete")):
             print line
+            sucReallocs += 1
             duration = line.split(':')[1]
             addr = line.split(':')[2]
             oldSize = line.split(':')[3]
@@ -355,9 +393,9 @@ def reallocMem(ui, step):
             ui.appendST("Request satisfying time: " + str(duration) + " ms\n")
             ui.appendST("Beginning address of new block: "+addr)
             if (int(duration) <= bestReallocTime):
-                bestReallocTime = duration
+                bestReallocTime = int(duration)
             if (int(duration) >= worstReallocTime):
-                worstReallocTime = duration
+                worstReallocTime = int(duration)
             break
         print line
         time.sleep(1)
@@ -371,6 +409,7 @@ def reallocMem(ui, step):
 
 def printMemory(ui):
     global serialComm
+    global remainingMem
     print "ACTUAL MEMORY STATE from python PrintMemory"
     ui.setMV("")
     serialComm.write(b'p')
@@ -380,27 +419,63 @@ def printMemory(ui):
             break
         if(not line.__contains__("Counter")):
             ui.appendMV(line)
+        if(line.__contains__("Remaining")):
+            remainingMem = line.split(':')[1]
+            remainingMem = remainingMem[:-2]
         print line
         time.sleep(0.1)
 
 
 def showAllStats(ui):
     global numOfAllocs, numOfFrees, numOfReallocs
+    global sucAllocs, sucFrees, sucReallocs
     global bestFreeTime, bestReallocTime, bestAllocTime
     global worstFreeTime, worstReallocTime, worstAllocTime
+    global maxAllocBlock, minAllocBlock, avarageAllocBlock
     ui.setST("")
-    ui.appendST("Best alloc time: "+str(bestAllocTime)+"ms")
-    ui.appendST("Worst alloc time: "+str(worstAllocTime)+"ms")
-    ui.appendST("")
-    ui.appendST("Best free time: " + str(bestFreeTime)+"ms")
-    ui.appendST("Worst free time: " + str(worstFreeTime)+"ms")
-    ui.appendST("")
-    ui.appendST("Best realloc time: " + str(bestReallocTime)+"ms")
-    ui.appendST("Worst realloc time: " + str(worstReallocTime)+"ms")
-    ui.appendST("")
+    if(int(numOfAllocs) == 0 and int(numOfFrees) == 0 and int(numOfReallocs) == 0):
+        ui.appendST("No statistics available")
+        return
+    if(int(numOfAllocs) > 0):
+        ui.appendST("Best alloc time: "+str(bestAllocTime)+"ms")
+        ui.appendST("Worst alloc time: "+str(worstAllocTime)+"ms")
+        ui.appendST("Jitter: "+str(worstAllocTime - bestAllocTime)+"ms")
+        ui.appendST("")
+    if(int(numOfFrees) > 0):
+        ui.appendST("Best free time: " + str(bestFreeTime)+"ms")
+        ui.appendST("Worst free time: " + str(worstFreeTime)+"ms")
+        ui.appendST("Jitter: "+str(worstFreeTime - bestFreeTime)+"ms")
+        ui.appendST("")
+    if(int(numOfReallocs) > 0):
+        ui.appendST("Best realloc time: " + str(bestReallocTime)+"ms")
+        ui.appendST("Worst realloc time: " + str(worstReallocTime)+"ms")
+        ui.appendST("Jitter: "+str(worstReallocTime - bestReallocTime)+"ms")
+        ui.appendST("")
+    ui.appendST("Type and number of requests: ")
+    ui.appendST("(all / success / failed / percentage of success)")
+    if(int(numOfAllocs) > 0):
+        allocPercentage = str((float(sucAllocs) / float(numOfAllocs)) * 100)
+        ui.appendST("Allocs: "+str(numOfAllocs)+" / "+str(sucAllocs)+" / "+str(int(numOfAllocs) - int(sucAllocs))+" / "+allocPercentage+"%")
+    if(int(numOfFrees) > 0):
+        freePercentage = str((float(sucFrees) / float(numOfFrees)) * 100)
+        ui.appendST("Frees: "+str(numOfFrees)+" / "+str(sucFrees)+" / "+str(int(numOfFrees) - int(sucFrees))+" / "+freePercentage+"%")
+    if (int(numOfReallocs) > 0):
+        reallocPercentage = str((float(sucReallocs) / float(numOfReallocs)) * 100)
+        ui.appendST("Reallocs: "+str(numOfReallocs)+" / "+str(sucReallocs)+" / "+str(int(numOfReallocs) - int(sucReallocs))+" /"+reallocPercentage+"%")
+    ui.appendST("\n")
+    ui.appendST("Memory utilization:")
+    ui.appendST("Whole memory:  "+str(wholeMem)+"MB")
 
+    allocMemPercentage = str(round(((float(int(wholeMem) - int(remainingMem)) / float(wholeMem)) * 100),3))
+    ui.appendST("Allocated memory:  "+str(int(wholeMem) - int(remainingMem))+"MB   "+str(allocMemPercentage)+" %")
 
+    freeMemPercentage = str(round(((float(remainingMem) / float(wholeMem)) * 100),3))
+    ui.appendST("Free memory:  "+str(remainingMem)+"MB         "+str(freeMemPercentage)+" %")
 
+    ui.appendST("")
+    ui.appendST("Largest block: "+str(maxAllocBlock)+"MB")
+    ui.appendST("Smallest block: "+str(minAllocBlock)+"MB")
+    ui.appendST("Average block: "+str(avarageAllocBlock)+"MB")
 
 
 # ****** private functions ******

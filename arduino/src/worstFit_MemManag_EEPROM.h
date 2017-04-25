@@ -66,7 +66,7 @@ uint16_t wMemAlloc(unsigned int requestedSize);
 *
 @param ptrToFree Pointer to memory which will be set free
 */
-void wMemFree(uint16_t ptrToFree);
+int wMemFree(uint16_t ptrToFree);
 
 
 /*
@@ -100,3 +100,5 @@ void wPrintWholeMemoryReverse();
 
 
 uint16_t wgetBlockSize(uint16_t ptr);
+
+uint16_t wgetRemainingMem();

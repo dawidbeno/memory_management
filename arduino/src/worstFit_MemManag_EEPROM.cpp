@@ -60,7 +60,7 @@ uint16_t wMemAlloc(uint16_t requestedSize){
     uint16_t newAddr;
 
     /* Cannot allocate 0 bytes*/
-	if (requestedSize < 0) {
+	if (requestedSize <= 0) {
 		return W_NONE;
 	}
 
@@ -149,10 +149,11 @@ uint16_t wMemAlloc(uint16_t requestedSize){
 
 
 
-void wMemFree(uint16_t ptrToFree){
+int wMemFree(uint16_t ptrToFree){
   uint16_t blockAddr;
   uint16_t nextAddr;
   uint16_t ptr = ptrToFree;
+  int numOfJoins = 0;
   wMem_block block, next;
 
   if(ptrToFree < W_EEPROM){
@@ -178,6 +179,7 @@ void wMemFree(uint16_t ptrToFree){
 
 		if (next.pNextFreeBlock != WStartAddress && nextAddr != WEndAddress) {
 			wjoinBlock(blockAddr, block);
+      numOfJoins++;
 		}
 
     next = block;
@@ -189,11 +191,12 @@ void wMemFree(uint16_t ptrToFree){
 		/*Try to join left*/
 		if (blockAddr != WStartAddress && block.pNextFreeBlock != WStartAddress) {
 			wjoinBlock(blockAddr, block);
+      numOfJoins++;
 		}
 
   }
 
-
+return numOfJoins;
 }
 
 
@@ -205,7 +208,7 @@ uint16_t wMemRealloc(uint16_t ptrToRealloc, uint16_t requestedSize){
     uint16_t i;
     char needToCopy = 'N';
 
-    if (requestedSize < 0) {
+    if (requestedSize <= 0) {
 		    return W_NONE;
 	  }
 
@@ -455,6 +458,9 @@ static void wclearMem(){
   }
 }
 
+uint16_t wgetRemainingMem(){
+  return WactFreeMem;
+}
 
 
 

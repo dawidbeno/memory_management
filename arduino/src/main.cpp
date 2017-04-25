@@ -129,7 +129,7 @@ void setAlg(char alg){
 
 /* Provides test allocation*/
 void allocate(int size){
-  uint16_t ptr, firstTime, secondTime, resTime;
+  uint16_t ptr, firstTime=0, secondTime=0, resTime=0;
   int i;
 
   if(actAlg == BEST){
@@ -153,12 +153,18 @@ void allocate(int size){
     ptrArray[i] = ptr;
   }
 
-  if(ptrArray[0] != NONE){
+  if(ptrArray[i] != NONE){
     Serial.print("Allocation SUCCESS:");Serial.print(i);
     Serial.print(":");Serial.print(ptr);
     Serial.print(":");Serial.println(resTime);
   }else{
-    Serial.println("Allocation FAILED");
+    uint16_t remainingMem;
+    if(actAlg == BEST){
+        remainingMem = getRamainingMem();
+    }else if(actAlg == WORST){
+        remainingMem = wgetRemainingMem();
+    }
+    Serial.print("Allocation FAILED:");Serial.println(remainingMem);
   }
 
 }
@@ -166,16 +172,16 @@ void allocate(int size){
 
 void freeMem(int ptr){
     uint16_t firstTime, secondTime, resTime;
-
+    int numOfJoins = 0;
     if(actAlg == BEST){
       firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-      bMemFree(ptrArray[ptr]);
+      numOfJoins = bMemFree(ptrArray[ptr]);
       secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
       resTime = secondTime - firstTime;
 
     }else if(actAlg == WORST){
       firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-      wMemFree(ptrArray[ptr]);
+      numOfJoins = wMemFree(ptrArray[ptr]);
       secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
       resTime = secondTime - firstTime;
     }
@@ -185,7 +191,8 @@ void freeMem(int ptr){
     Serial.print("ptrArray: ");Serial.println(ptr);
 
     Serial.print("Free complete:");
-    Serial.print("Time:");Serial.println(resTime);
+    Serial.print("Time:");Serial.print(resTime);
+    Serial.print(":");Serial.println(numOfJoins);
 
     ptrArray[ptr] = 0;
 }
@@ -359,7 +366,7 @@ void TaskMain(void *pvParameters)  // This is a task.
 
     }
 
-    vTaskDelay( 100 / portTICK_PERIOD_MS );
+    vTaskDelay( 500 / portTICK_PERIOD_MS );
   }
 
 }

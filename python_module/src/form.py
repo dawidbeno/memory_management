@@ -145,7 +145,7 @@ class Ui_Form(object):
         numOfRemainingSteps = self.getNumOfRemainingSteps()
         for x in range(0, numOfRemainingSteps-2):  # minus 2 because of first and last line in test file
             self.nextStep()
-            time.sleep(2)
+            time.sleep(1)
 
 
     # ********* LOADING METHODS  ***********
