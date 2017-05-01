@@ -39,6 +39,8 @@ minAllocBlock = 5000
 sizeCount = 0
 avarageAllocBlock = 5000
 
+wholeTime = 0
+
 # Arduino uses BEST fit as default algorithm
 
 
@@ -63,7 +65,6 @@ def init(ui):
                 print "init successful"
                 ui.appendST("Init successful")
                 setAlgorithm(ui, BEST)
-                printMemory(ui)
                 break
             else:
                 print "waiting for init ..."
@@ -79,6 +80,7 @@ def setAlgorithm(ui, algType):
     global bestFreeTime, bestReallocTime, bestAllocTime
     global worstFreeTime, worstReallocTime, worstAllocTime
     global maxAllocBlock, minAllocBlock, avarageAllocBlock, sizeCount
+    global wholeTime
     numOfAllocs = 0
     numOfFrees = 0
     numOfReallocs = 0
@@ -95,6 +97,7 @@ def setAlgorithm(ui, algType):
     minAllocBlock = 9999
     avarageAllocBlock = 9999
     sizeCount = 0
+    wholeTime = 0
     ui.setST("")
     if(algType == BEST):
         serialComm.write(b'b')
@@ -297,11 +300,12 @@ def allocateMem(ui, step):
                 avarageAllocBlock = (sizeCount / numOfAllocs)
             elif(line.__contains__("FAILED")):
                 ui.appendST("Success rate of request:  Failed\n")
-                remainigMem = line.split(':')[1]
-                if(int(remainigMem) > int(size)+MEM_BLOCK_SIZE):
+                remMem = line.split(':')[1]
+                remMem = remMem[:-2]
+                if(int(remMem) > int(size)+MEM_BLOCK_SIZE):
                     ui.appendST("Fail has been caused due to external fragmentation:")
-                    ui.appendST("Requested size: " + str(size) + "B   Remaining memory: "+ str(remainigMem)+"B")
-                    ui.appendST("Memory is divided into small blocks\n")
+                    ui.appendST("Requested size: " + str(size) + " B\nRemaining memory: "+ str(remMem)+" B")
+                    ui.appendST("\nMemory is divided into small blocks\n")
             break
         print line
         time.sleep(0.5)
@@ -410,6 +414,7 @@ def reallocMem(ui, step):
 def printMemory(ui):
     global serialComm
     global remainingMem
+    global wholeTime
     print "ACTUAL MEMORY STATE from python PrintMemory"
     ui.setMV("")
     serialComm.write(b'p')
@@ -417,11 +422,15 @@ def printMemory(ui):
         line = serialComm.readline()
         if (line.__contains__("Finish")):
             break
-        if(not line.__contains__("Counter")):
+        if(not (line.__contains__("Counter") or line.__contains__("WholeTime"))):
             ui.appendMV(line)
         if(line.__contains__("Remaining")):
             remainingMem = line.split(':')[1]
             remainingMem = remainingMem[:-2]
+        if(line.__contains__("WholeTime")):
+            var = line.split(':')[1]
+            var = var[:-2]
+            wholeTime += int(var)
         print line
         time.sleep(0.1)
 
@@ -451,6 +460,8 @@ def showAllStats(ui):
         ui.appendST("Worst realloc time: " + str(worstReallocTime)+"ms")
         ui.appendST("Jitter: "+str(worstReallocTime - bestReallocTime)+"ms")
         ui.appendST("")
+    ui.appendST("Time count of whole test: "+str(wholeTime)+"ms")
+    ui.appendST("")
     ui.appendST("Type and number of requests: ")
     ui.appendST("(all / success / failed / percentage of success)")
     if(int(numOfAllocs) > 0):
@@ -467,10 +478,10 @@ def showAllStats(ui):
     ui.appendST("Whole memory:  "+str(wholeMem)+"MB")
 
     allocMemPercentage = str(round(((float(int(wholeMem) - int(remainingMem)) / float(wholeMem)) * 100),3))
-    ui.appendST("Allocated memory:  "+str(int(wholeMem) - int(remainingMem))+"MB   "+str(allocMemPercentage)+" %")
+    ui.appendST("Allocated memory:  "+str(int(wholeMem) - int(remainingMem))+"MB  ("+str(allocMemPercentage)+" %)")
 
     freeMemPercentage = str(round(((float(remainingMem) / float(wholeMem)) * 100),3))
-    ui.appendST("Free memory:  "+str(remainingMem)+"MB         "+str(freeMemPercentage)+" %")
+    ui.appendST("Free memory:  "+str(remainingMem)+"MB  ("+str(freeMemPercentage)+" %)")
 
     ui.appendST("")
     ui.appendST("Largest block: "+str(maxAllocBlock)+"MB")

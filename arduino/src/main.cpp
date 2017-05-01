@@ -38,6 +38,7 @@ uint16_t ptrArray[NUM_POINTERS]; // array where pointers are stored
 
 int isInitialized = 0;
 
+uint16_t wholeTime = 0;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -137,6 +138,7 @@ void allocate(int size){
     ptr = bMemAlloc((uint16_t)size);
     secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
     resTime = secondTime - firstTime;
+    wholeTime += resTime;
     while(ptrArray[i] != 0){
       i++;
     }
@@ -147,6 +149,7 @@ void allocate(int size){
     ptr = wMemAlloc((uint16_t)size);
     secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
     resTime = secondTime - firstTime;
+    wholeTime += resTime;
     while(ptrArray[i] != 0){
       i++;
     }
@@ -178,12 +181,14 @@ void freeMem(int ptr){
       numOfJoins = bMemFree(ptrArray[ptr]);
       secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
       resTime = secondTime - firstTime;
+      wholeTime += resTime;
 
     }else if(actAlg == WORST){
       firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
       numOfJoins = wMemFree(ptrArray[ptr]);
       secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
       resTime = secondTime - firstTime;
+      wholeTime += resTime;
     }
 
 
@@ -209,11 +214,14 @@ void reallocMem(int ptr, int size){
       newPtr = bMemRealloc(ptrToRealloc, (uint16_t)size);
       secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
       resTime = secondTime - firstTime;
+      wholeTime += resTime;
+
     }else if(actAlg == WORST){
       firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
       newPtr = wMemRealloc(ptrToRealloc, (uint16_t)size);
       secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
       resTime = secondTime - firstTime;
+      wholeTime += resTime;
     }
 
 
@@ -260,6 +268,7 @@ void TaskMain(void *pvParameters)  // This is a task.
       if(inChar == 'i'){
         initComm();
         counter = 0;
+        wholeTime = 0;
         continue;
       }
 
@@ -267,6 +276,7 @@ void TaskMain(void *pvParameters)  // This is a task.
       if(inChar == 'b'){
         setAlg(BEST);
         counter = 0;
+        wholeTime = 0;
         continue;
       }
 
@@ -274,6 +284,7 @@ void TaskMain(void *pvParameters)  // This is a task.
       if(inChar == 'w'){
         setAlg(WORST);
         counter = 0;
+        wholeTime = 0;
         continue;
       }
 
@@ -352,11 +363,13 @@ void TaskMain(void *pvParameters)  // This is a task.
       if(inChar == 'p' && isInitialized == 1){
         if(actAlg == BEST){
           bPrintWholeMemory();
+          Serial.print("WholeTime:");Serial.println(wholeTime);
           Serial.println("Finish");
           continue;
         }
         if(actAlg == WORST){
           wPrintWholeMemory();
+          Serial.print("WholeTime:");Serial.println(wholeTime);
           Serial.println("Finish");
           continue;
         }
