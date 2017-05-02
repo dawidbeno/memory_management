@@ -27,7 +27,7 @@ except AttributeError:
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName(_fromUtf8("Form"))
-        Form.resize(1087, 673)
+        Form.resize(1116, 673)
         self.lbLTL = QtGui.QLabel(Form)
         self.lbLTL.setGeometry(QtCore.QRect(10, 20, 151, 31))
         font = QtGui.QFont()
@@ -59,16 +59,16 @@ class Ui_Form(object):
         self.lbAT.setFont(font)
         self.lbAT.setObjectName(_fromUtf8("lbAT"))
         self.tbActTest = QtGui.QTextBrowser(Form)
-        self.tbActTest.setGeometry(QtCore.QRect(750, 110, 151, 351))
+        self.tbActTest.setGeometry(QtCore.QRect(750, 110, 151, 241))
         self.tbActTest.setObjectName(_fromUtf8("tbActTest"))
         self.btnNextStep = QtGui.QPushButton(Form)
-        self.btnNextStep.setGeometry(QtCore.QRect(750, 480, 131, 51))
+        self.btnNextStep.setGeometry(QtCore.QRect(750, 370, 131, 51))
         font = QtGui.QFont()
         font.setPointSize(14)
         self.btnNextStep.setFont(font)
         self.btnNextStep.setObjectName(_fromUtf8("btnNextStep"))
         self.btnRunAll = QtGui.QPushButton(Form)
-        self.btnRunAll.setGeometry(QtCore.QRect(750, 540, 131, 51))
+        self.btnRunAll.setGeometry(QtCore.QRect(750, 430, 131, 51))
         font = QtGui.QFont()
         font.setPointSize(14)
         self.btnRunAll.setFont(font)
@@ -77,7 +77,7 @@ class Ui_Form(object):
         self.tbMemVisual.setGeometry(QtCore.QRect(380, 110, 341, 541))
         self.tbMemVisual.setObjectName(_fromUtf8("tbMemVisual"))
         self.tbStats = QtGui.QTextBrowser(Form)
-        self.tbStats.setGeometry(QtCore.QRect(10, 110, 341, 441))
+        self.tbStats.setGeometry(QtCore.QRect(10, 110, 341, 411))
         self.tbStats.setObjectName(_fromUtf8("tbStats"))
         self.lbStats = QtGui.QLabel(Form)
         self.lbStats.setGeometry(QtCore.QRect(10, 90, 101, 17))
@@ -104,10 +104,10 @@ class Ui_Form(object):
         self.lbES.setFont(font)
         self.lbES.setObjectName(_fromUtf8("lbES"))
         self.tbExecSteps = QtGui.QTextBrowser(Form)
-        self.tbExecSteps.setGeometry(QtCore.QRect(920, 110, 151, 351))
+        self.tbExecSteps.setGeometry(QtCore.QRect(920, 110, 171, 241))
         self.tbExecSteps.setObjectName(_fromUtf8("tbExecSteps"))
         self.btnStop = QtGui.QPushButton(Form)
-        self.btnStop.setGeometry(QtCore.QRect(750, 600, 131, 51))
+        self.btnStop.setGeometry(QtCore.QRect(750, 490, 131, 51))
         font = QtGui.QFont()
         font.setPointSize(14)
         self.btnStop.setFont(font)
@@ -137,7 +137,7 @@ class Ui_Form(object):
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(_translate("Form", "Testing application", None))
+        Form.setWindowTitle(_translate("Form", "Form", None))
         self.lbLTL.setText(_translate("Form", "Load testing level :", None))
         self.btnLoadLvl1.setText(_translate("Form", "1. level", None))
         self.btnLoadLvl2.setText(_translate("Form", "2. level", None))
@@ -159,7 +159,6 @@ class Ui_Form(object):
         self.lbES.setText(_translate("Form", "Executed steps :", None))
         self.btnStop.setText(_translate("Form", "Stop", None))
         self.lbMemUtil.setText(_translate("Form", "Memory utilization :", None))
-
 
 
 
@@ -269,6 +268,7 @@ class Ui_Form(object):
 
 
 
+
 # if __name__ == "__main__":
 #     import sys
 #     app = QtGui.QApplication(sys.argv)
@@ -277,4 +277,4 @@ class Ui_Form(object):
 #     ui.setupUi(Form)
 #     Form.show()
 #     sys.exit(app.exec_())
-#
+

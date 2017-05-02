@@ -99,6 +99,8 @@ def setAlgorithm(ui, algType):
     sizeCount = 0
     wholeTime = 0
     ui.setST("")
+    ui.setAT("")
+    ui.setES("")
     if(algType == BEST):
         serialComm.write(b'b')
         while True:
@@ -221,6 +223,8 @@ def nextStep(ui, step):
     runStep(ui, step)
     time.sleep(2)
     printMemory(ui)
+    ui.appendES(step)
+
 
 
 
@@ -427,6 +431,9 @@ def printMemory(ui):
         if(line.__contains__("Remaining")):
             remainingMem = line.split(':')[1]
             remainingMem = remainingMem[:-2]
+            allocatedMem = int(wholeMem) - int(remainingMem)
+            percentage = ((float(allocatedMem) / float(wholeMem)) * 100)
+            ui.setPB(round(float(percentage)))
         if(line.__contains__("WholeTime")):
             var = line.split(':')[1]
             var = var[:-2]
@@ -465,28 +472,29 @@ def showAllStats(ui):
     ui.appendST("Type and number of requests: ")
     ui.appendST("(all / success / failed / percentage of success)")
     if(int(numOfAllocs) > 0):
-        allocPercentage = str((float(sucAllocs) / float(numOfAllocs)) * 100)
+        allocPercentage = str(round((float(sucAllocs) / float(numOfAllocs)) * 100,3))
         ui.appendST("Allocs: "+str(numOfAllocs)+" / "+str(sucAllocs)+" / "+str(int(numOfAllocs) - int(sucAllocs))+" / "+allocPercentage+"%")
     if(int(numOfFrees) > 0):
-        freePercentage = str((float(sucFrees) / float(numOfFrees)) * 100)
+        freePercentage = str(round((float(sucFrees) / float(numOfFrees)) * 100,3))
         ui.appendST("Frees: "+str(numOfFrees)+" / "+str(sucFrees)+" / "+str(int(numOfFrees) - int(sucFrees))+" / "+freePercentage+"%")
     if (int(numOfReallocs) > 0):
-        reallocPercentage = str((float(sucReallocs) / float(numOfReallocs)) * 100)
+        reallocPercentage = str(round((float(sucReallocs) / float(numOfReallocs)) * 100,3))
         ui.appendST("Reallocs: "+str(numOfReallocs)+" / "+str(sucReallocs)+" / "+str(int(numOfReallocs) - int(sucReallocs))+" /"+reallocPercentage+"%")
     ui.appendST("\n")
     ui.appendST("Memory utilization:")
-    ui.appendST("Whole memory:  "+str(wholeMem)+"MB")
+    ui.appendST("Whole memory:  "+str(wholeMem)+"B")
 
     allocMemPercentage = str(round(((float(int(wholeMem) - int(remainingMem)) / float(wholeMem)) * 100),3))
-    ui.appendST("Allocated memory:  "+str(int(wholeMem) - int(remainingMem))+"MB  ("+str(allocMemPercentage)+" %)")
+    ui.appendST("Allocated memory:  "+str(int(wholeMem) - int(remainingMem))+"B  ("+str(allocMemPercentage)+" %)")
 
     freeMemPercentage = str(round(((float(remainingMem) / float(wholeMem)) * 100),3))
-    ui.appendST("Free memory:  "+str(remainingMem)+"MB  ("+str(freeMemPercentage)+" %)")
+    ui.appendST("Free memory:  "+str(remainingMem)+"B  ("+str(freeMemPercentage)+" %)")
 
     ui.appendST("")
-    ui.appendST("Largest block: "+str(maxAllocBlock)+"MB")
-    ui.appendST("Smallest block: "+str(minAllocBlock)+"MB")
-    ui.appendST("Average block: "+str(avarageAllocBlock)+"MB")
+    ui.appendST("Largest block: "+str(maxAllocBlock)+"B")
+    ui.appendST("Smallest block: "+str(minAllocBlock)+"B")
+    ui.appendST("Average block: "+str(avarageAllocBlock)+"B")
+    ui.setPB(allocMemPercentage)
 
 
 # ****** private functions ******

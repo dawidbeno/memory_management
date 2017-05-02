@@ -1,5 +1,5 @@
 import sys
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtGui
 
 from src.form import Ui_Form
 from src import controller

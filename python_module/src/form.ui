@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>778</width>
-    <height>707</height>
+    <width>1087</width>
+    <height>673</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -86,7 +86,7 @@
   <widget class="QLabel" name="lbMV">
    <property name="geometry">
     <rect>
-     <x>400</x>
+     <x>380</x>
      <y>80</y>
      <width>181</width>
      <height>31</height>
@@ -104,8 +104,8 @@
   <widget class="QLabel" name="lbAT">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>320</y>
+     <x>760</x>
+     <y>80</y>
      <width>101</width>
      <height>21</height>
     </rect>
@@ -122,10 +122,10 @@
   <widget class="QTextBrowser" name="tbActTest">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>350</y>
-     <width>191</width>
-     <height>301</height>
+     <x>750</x>
+     <y>110</y>
+     <width>151</width>
+     <height>351</height>
     </rect>
    </property>
    <property name="html">
@@ -139,8 +139,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="btnNextStep">
    <property name="geometry">
     <rect>
-     <x>220</x>
-     <y>350</y>
+     <x>750</x>
+     <y>480</y>
      <width>131</width>
      <height>51</height>
     </rect>
@@ -157,8 +157,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="btnRunAll">
    <property name="geometry">
     <rect>
-     <x>220</x>
-     <y>430</y>
+     <x>750</x>
+     <y>540</y>
      <width>131</width>
      <height>51</height>
     </rect>
@@ -175,8 +175,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QTextBrowser" name="tbMemVisual">
    <property name="geometry">
     <rect>
-     <x>400</x>
-     <y>120</y>
+     <x>380</x>
+     <y>110</y>
      <width>341</width>
      <height>541</height>
     </rect>
@@ -186,9 +186,9 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>120</y>
+     <y>110</y>
      <width>341</width>
-     <height>191</height>
+     <height>441</height>
     </rect>
    </property>
   </widget>
@@ -213,8 +213,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QLabel" name="lbActAlg">
    <property name="geometry">
     <rect>
-     <x>670</x>
-     <y>90</y>
+     <x>650</x>
+     <y>80</y>
      <width>71</width>
      <height>20</height>
     </rect>
@@ -231,7 +231,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="btnSetBest">
    <property name="geometry">
     <rect>
-     <x>640</x>
+     <x>620</x>
      <y>10</y>
      <width>99</width>
      <height>27</height>
@@ -244,7 +244,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="btnSetWorst">
    <property name="geometry">
     <rect>
-     <x>640</x>
+     <x>620</x>
      <y>40</y>
      <width>99</width>
      <height>27</height>
@@ -252,6 +252,83 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>WORST FIT</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lbES">
+   <property name="geometry">
+    <rect>
+     <x>920</x>
+     <y>80</y>
+     <width>131</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Executed steps :</string>
+   </property>
+  </widget>
+  <widget class="QTextBrowser" name="tbExecSteps">
+   <property name="geometry">
+    <rect>
+     <x>920</x>
+     <y>110</y>
+     <width>151</width>
+     <height>351</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnStop">
+   <property name="geometry">
+    <rect>
+     <x>750</x>
+     <y>600</y>
+     <width>131</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Stop</string>
+   </property>
+  </widget>
+  <widget class="QProgressBar" name="pbMemUtil">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>590</y>
+     <width>341</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>24</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lbMemUtil">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>560</y>
+     <width>211</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Memory utilization :</string>
    </property>
   </widget>
  </widget>
