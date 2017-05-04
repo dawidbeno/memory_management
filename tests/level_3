@@ -1,0 +1,48 @@
+PTRNUM 100
+alloc 500
+alloc 500
+alloc 500
+alloc 500
+alloc 500
+alloc 500
+alloc 500
+alloc 500
+free ptr0
+free ptr2
+free ptr6
+realloc ptr7 750
+realloc ptr1 400
+realloc ptr3 300
+alloc 250
+alloc 250
+alloc 300
+alloc 350
+alloc 500
+free ptr0
+free ptr1
+free ptr2
+alloc 700
+free ptr3
+alloc 200
+alloc 200
+realloc ptr0 500
+realloc ptr1 600
+alloc 500
+alloc 500
+alloc 500
+realloc ptr5 300
+alloc 456
+realloc ptr6 300
+realloc ptr7 300
+realloc ptr8 300
+realloc ptr9 330
+free ptr8
+free ptr7
+free ptr5
+alloc 400
+alloc 400
+realloc ptr0 200
+realloc ptr1 200
+realloc ptr0 300
+realloc ptr1 300
+

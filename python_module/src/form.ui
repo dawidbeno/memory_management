@@ -140,7 +140,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>750</x>
-     <y>480</y>
+     <y>540</y>
      <width>131</width>
      <height>51</height>
     </rect>
@@ -158,7 +158,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>750</x>
-     <y>540</y>
+     <y>600</y>
      <width>131</width>
      <height>51</height>
     </rect>
@@ -285,7 +285,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="btnStop">
    <property name="geometry">
     <rect>
-     <x>750</x>
+     <x>890</x>
      <y>600</y>
      <width>131</width>
      <height>51</height>
@@ -329,6 +329,37 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Memory utilization :</string>
+   </property>
+  </widget>
+  <widget class="QProgressBar" name="pbTest">
+   <property name="geometry">
+    <rect>
+     <x>750</x>
+     <y>492</y>
+     <width>321</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>24</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lbTestProgres">
+   <property name="geometry">
+    <rect>
+     <x>750</x>
+     <y>470</y>
+     <width>211</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Test progress :</string>
    </property>
   </widget>
  </widget>

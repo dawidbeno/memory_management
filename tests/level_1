@@ -1,0 +1,7 @@
+PTRNUM 100
+alloc 80
+alloc 100
+alloc 120
+realloc ptr0 100
+free ptr1
+

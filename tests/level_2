@@ -1,0 +1,151 @@
+PTRNUM 100
+alloc 3000
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+alloc 25
+free ptr1
+free ptr3
+free ptr5
+free ptr7
+free ptr9
+free ptr15
+realloc ptr2 50
+realloc ptr4 50
+realloc ptr6 50
+realloc ptr8 50
+alloc 30
+free ptr20
+free ptr21
+free ptr23
+realloc ptr2 80
+alloc 30
+alloc 30
+alloc 30
+free ptr17
+alloc 50
+alloc 10
+realloc ptr1 100
+realloc ptr2 90
+realloc ptr3 80
+free ptr18
+alloc 60
+alloc 100
+alloc 50
+alloc 80
+free ptr10
+free ptr11
+alloc 50
+free ptr12
+alloc 50
+free ptr13
+alloc 50
+free ptr14
+alloc 100
+realloc ptr12 20
+alloc 10
+free ptr12
+free ptr0
+free ptr1
+alloc 30
+alloc 30
+free ptr7
+alloc 60
+alloc 60
+alloc 60
+alloc 60
+alloc 60
+free ptr4
+free ptr5
+realloc ptr6 80
+alloc 12
+alloc 12
+realloc ptr8 78
+realloc ptr8 40
+realloc ptr8 90
+alloc 20
+free ptr0
+alloc 25
+alloc 25
+alloc 35
+alloc 25
+alloc 28
+alloc 64
+alloc 78
+realloc ptr9 90
+alloc 45
+free ptr3
+free ptr14
+free ptr12
+alloc 45
+realloc ptr7 10
+realloc ptr8 20
+realloc ptr9 30
+realloc ptr10 40
+realloc ptr11 50
+free ptr10
+alloc 80
+realloc ptr7 50
+alloc 40
+free ptr7
+alloc 60
+alloc 70
+free ptr4
+free ptr5
+free ptr6
+free ptr7
+free ptr8
+alloc 30
+alloc 30
+alloc 30
+alloc 30
+realloc ptr4 50
+realloc ptr5 50
+free ptr7
+alloc 30
+alloc 30
+alloc 30
+alloc 30
+realloc ptr0 100
+realloc ptr0 20
+alloc 50
+free ptr12
+free ptr11
+free ptr13
+free ptr14
+alloc 25
+alloc 25
+alloc 28
+alloc 30
+alloc 50
+realloc ptr7 36
+realloc ptr8 40
+free ptr8
+alloc 64
+
