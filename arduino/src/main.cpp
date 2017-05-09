@@ -176,30 +176,35 @@ void allocate(int size){
 void freeMem(int ptr){
     uint16_t firstTime, secondTime, resTime;
     int numOfJoins = 0;
-    if(actAlg == BEST){
-      firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-      numOfJoins = bMemFree(ptrArray[ptr]);
-      secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-      resTime = secondTime - firstTime;
-      wholeTime += resTime;
+    if(ptrArray[ptr] != 0){
+      if(actAlg == BEST){
+        firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+        numOfJoins = bMemFree(ptrArray[ptr]);
+        secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+        resTime = secondTime - firstTime;
+        wholeTime += resTime;
 
-    }else if(actAlg == WORST){
-      firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-      numOfJoins = wMemFree(ptrArray[ptr]);
-      secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-      resTime = secondTime - firstTime;
-      wholeTime += resTime;
+      }else if(actAlg == WORST){
+        firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+        numOfJoins = wMemFree(ptrArray[ptr]);
+        secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+        resTime = secondTime - firstTime;
+        wholeTime += resTime;
+      }
+
+
+      Serial.print("Free address:");Serial.println(ptrArray[ptr]);
+      Serial.print("ptrArray: ");Serial.println(ptr);
+
+      Serial.print("Free complete:");
+      Serial.print("Time:");Serial.print(resTime);
+      Serial.print(":");Serial.println(numOfJoins);
+
+      ptrArray[ptr] = 0;
+    }else{
+      Serial.println("Free FAILED:");
     }
 
-
-    Serial.print("Free address:");Serial.println(ptrArray[ptr]);
-    Serial.print("ptrArray: ");Serial.println(ptr);
-
-    Serial.print("Free complete:");
-    Serial.print("Time:");Serial.print(resTime);
-    Serial.print(":");Serial.println(numOfJoins);
-
-    ptrArray[ptr] = 0;
 }
 
 
@@ -209,28 +214,33 @@ void reallocMem(int ptr, int size){
     uint16_t firstTime, secondTime, resTime, newPtr;
     uint16_t oldSize = getBlockSize(ptrToRealloc);
 
-    if(actAlg == BEST){
-      firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-      newPtr = bMemRealloc(ptrToRealloc, (uint16_t)size);
-      secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-      resTime = secondTime - firstTime;
-      wholeTime += resTime;
+    if(ptrArray[ptr] != 0){
+      if(actAlg == BEST){
+        firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+        newPtr = bMemRealloc(ptrToRealloc, (uint16_t)size);
+        secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+        resTime = secondTime - firstTime;
+        wholeTime += resTime;
 
-    }else if(actAlg == WORST){
-      firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-      newPtr = wMemRealloc(ptrToRealloc, (uint16_t)size);
-      secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-      resTime = secondTime - firstTime;
-      wholeTime += resTime;
+      }else if(actAlg == WORST){
+        firstTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+        newPtr = wMemRealloc(ptrToRealloc, (uint16_t)size);
+        secondTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+        resTime = secondTime - firstTime;
+        wholeTime += resTime;
+      }
+
+
+      ptrArray[ptr] = newPtr;
+
+      Serial.print("Realloc complete");
+      Serial.print(":");Serial.print(resTime);
+      Serial.print(":");Serial.print(newPtr);
+      Serial.print(":");Serial.println(oldSize);
+
+    }else{
+      Serial.println("Realloc FAILED");
     }
-
-
-    ptrArray[ptr] = newPtr;
-
-    Serial.print("Realloc complete");
-    Serial.print(":");Serial.print(resTime);
-    Serial.print(":");Serial.print(newPtr);
-    Serial.print(":");Serial.println(oldSize);
 
 }
 
@@ -323,6 +333,7 @@ void TaskMain(void *pvParameters)  // This is a task.
         addr = atoi(numStr);
         freeMem(addr);
 
+        Serial.print("Counter: ");Serial.println(counter);
         counter = 0;
         continue;
       }
@@ -354,7 +365,7 @@ void TaskMain(void *pvParameters)  // This is a task.
 
         reallocMem(ptr, sizeToRealloc);
 
-
+        counter = 0;
         continue;
       }
 

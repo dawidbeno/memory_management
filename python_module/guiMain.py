@@ -1,8 +1,8 @@
 import sys
 from PyQt4 import QtGui
 
-from src import controller
 from src.form import Ui_Form
+from src import controller
 
 app = QtGui.QApplication(sys.argv)
 Form = QtGui.QWidget()

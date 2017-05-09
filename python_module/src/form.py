@@ -133,6 +133,12 @@ class Ui_Form(object):
         font.setPointSize(13)
         self.lbTestProgres.setFont(font)
         self.lbTestProgres.setObjectName(_fromUtf8("lbTestProgres"))
+        self.btnAllStats = QtGui.QPushButton(Form)
+        self.btnAllStats.setGeometry(QtCore.QRect(890, 540, 131, 51))
+        font = QtGui.QFont()
+        font.setPointSize(13)
+        self.btnAllStats.setFont(font)
+        self.btnAllStats.setObjectName(_fromUtf8("btnAllStats"))
 
         self.retranslateUi(Form)
         QtCore.QObject.connect(self.btnLoadLvl1, QtCore.SIGNAL(_fromUtf8("clicked()")), self.loadTest_1)
@@ -145,6 +151,7 @@ class Ui_Form(object):
 
         QtCore.QObject.connect(self.btnSetBest, QtCore.SIGNAL(_fromUtf8("clicked()")), self.setAlgBest)
         QtCore.QObject.connect(self.btnSetWorst, QtCore.SIGNAL(_fromUtf8("clicked()")), self.setAlgWorst)
+        QtCore.QObject.connect(self.btnAllStats, QtCore.SIGNAL(_fromUtf8("clicked()")), self.showStats)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
@@ -171,7 +178,7 @@ class Ui_Form(object):
         self.btnStop.setText(_translate("Form", "Stop", None))
         self.lbMemUtil.setText(_translate("Form", "Memory utilization :", None))
         self.lbTestProgres.setText(_translate("Form", "Test progress :", None))
-
+        self.btnAllStats.setText(_translate("Form", "Show stats", None))
 
 
     def nextStep(self):
@@ -186,6 +193,8 @@ class Ui_Form(object):
             self.nextStep()
             time.sleep(1)
 
+    def showStats(self):
+        src.controller.showAllStats(self)
 
     # ********* LOADING METHODS  ***********
 

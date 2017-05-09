@@ -362,6 +362,24 @@ p, li { white-space: pre-wrap; }
     <string>Test progress :</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="btnAllStats">
+   <property name="geometry">
+    <rect>
+     <x>890</x>
+     <y>540</y>
+     <width>131</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Show stats</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

@@ -10,6 +10,7 @@ from PyQt4 import QtCore, QtGui
 import src.controller
 import time
 
+
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
@@ -62,13 +63,13 @@ class Ui_Form(object):
         self.tbActTest.setGeometry(QtCore.QRect(750, 110, 151, 351))
         self.tbActTest.setObjectName(_fromUtf8("tbActTest"))
         self.btnNextStep = QtGui.QPushButton(Form)
-        self.btnNextStep.setGeometry(QtCore.QRect(750, 480, 131, 51))
+        self.btnNextStep.setGeometry(QtCore.QRect(750, 540, 131, 51))
         font = QtGui.QFont()
         font.setPointSize(14)
         self.btnNextStep.setFont(font)
         self.btnNextStep.setObjectName(_fromUtf8("btnNextStep"))
         self.btnRunAll = QtGui.QPushButton(Form)
-        self.btnRunAll.setGeometry(QtCore.QRect(750, 540, 131, 51))
+        self.btnRunAll.setGeometry(QtCore.QRect(750, 600, 131, 51))
         font = QtGui.QFont()
         font.setPointSize(14)
         self.btnRunAll.setFont(font)
@@ -107,7 +108,7 @@ class Ui_Form(object):
         self.tbExecSteps.setGeometry(QtCore.QRect(920, 110, 151, 351))
         self.tbExecSteps.setObjectName(_fromUtf8("tbExecSteps"))
         self.btnStop = QtGui.QPushButton(Form)
-        self.btnStop.setGeometry(QtCore.QRect(750, 600, 131, 51))
+        self.btnStop.setGeometry(QtCore.QRect(890, 600, 131, 51))
         font = QtGui.QFont()
         font.setPointSize(14)
         self.btnStop.setFont(font)
@@ -122,6 +123,16 @@ class Ui_Form(object):
         font.setPointSize(13)
         self.lbMemUtil.setFont(font)
         self.lbMemUtil.setObjectName(_fromUtf8("lbMemUtil"))
+        self.pbTest = QtGui.QProgressBar(Form)
+        self.pbTest.setGeometry(QtCore.QRect(750, 492, 321, 41))
+        self.pbTest.setProperty("value", 24)
+        self.pbTest.setObjectName(_fromUtf8("pbTest"))
+        self.lbTestProgres = QtGui.QLabel(Form)
+        self.lbTestProgres.setGeometry(QtCore.QRect(750, 470, 211, 17))
+        font = QtGui.QFont()
+        font.setPointSize(13)
+        self.lbTestProgres.setFont(font)
+        self.lbTestProgres.setObjectName(_fromUtf8("lbTestProgres"))
 
         self.retranslateUi(Form)
         QtCore.QObject.connect(self.btnLoadLvl1, QtCore.SIGNAL(_fromUtf8("clicked()")), self.loadTest_1)
@@ -137,7 +148,7 @@ class Ui_Form(object):
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(_translate("Form", "Testing application", None))
+        Form.setWindowTitle(_translate("Form", "Form", None))
         self.lbLTL.setText(_translate("Form", "Load testing level :", None))
         self.btnLoadLvl1.setText(_translate("Form", "1. level", None))
         self.btnLoadLvl2.setText(_translate("Form", "2. level", None))
@@ -159,6 +170,7 @@ class Ui_Form(object):
         self.lbES.setText(_translate("Form", "Executed steps :", None))
         self.btnStop.setText(_translate("Form", "Stop", None))
         self.lbMemUtil.setText(_translate("Form", "Memory utilization :", None))
+        self.lbTestProgres.setText(_translate("Form", "Test progress :", None))
 
 
 
@@ -263,6 +275,13 @@ class Ui_Form(object):
 
     def appendES(self, str):
         self.tbExecSteps.append(str)
+
+    def setPBT(self, str):
+        str = round(float(str))
+        self.pbTest.setValue(int(str))
+
+
+
 
 
 if __name__ == "__main__":

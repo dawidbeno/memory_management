@@ -17,7 +17,7 @@ static void wclearMem();
 
 
 void wMemInit(){
-  //clearMem();
+  wclearMem();
   wMem_block block;
   uint16_t ptr = WStartAddress;
 
@@ -313,6 +313,7 @@ uint16_t wMemRealloc(uint16_t ptrToRealloc, uint16_t requestedSize){
   					     for (i = 0; i < pBlock.blockSize; i++) {
                     uint8_t pom = eeprom_read_byte((uint8_t*)(ptr + i));
                     eeprom_write_byte((uint8_t*)(pNewAddr + i), pom);
+                    //Serial.println("copy");
   					     }
   				    }
 
@@ -349,7 +350,7 @@ static void winsertNewBlock(uint16_t newAddr, wMem_block pNewBlockToInsert){
     eeprom_read_block(&blockItr, (uint16_t*)itrAddr, MEM_BLOCK_SIZE_W);
     		/*Find the right place in list for block to be inserted*/
 		while (1) {
-
+        Serial.println("Inserting block");
   			if (blockItr.blockSize <= pNewBlockToInsert.blockSize) {
   				break;
   			}

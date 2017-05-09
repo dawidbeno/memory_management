@@ -58,6 +58,7 @@ numOfBlocks = 3
 
 internalFragment = 0
 
+numAllocFails = 0
 
 # Arduino uses BEST fit as default algorithm
 
@@ -274,9 +275,12 @@ def nextStep(ui, step):
     ui.setPBT(p)
     ui.appendST("NEXT STEP")
     runStep(ui, step)
-    time.sleep(2)
+    time.sleep(1)
     printMemory(ui)
     ui.appendES(step)
+    if(stepNum % 5 == 0):
+        exportStatsToFile()
+
 
 
 # *********************************************
@@ -362,6 +366,7 @@ def allocateMem(ui, step):
                     ui.appendST("Requested size: " + str(size) + " B\nRemaining memory: "+ str(remMem)+" B")
                     ui.appendST("\nMemory is divided into small blocks\n")
                     numOfExtFragFail += 1
+
             break
         print line
         time.sleep(0.5)
@@ -502,6 +507,7 @@ def printMemory(ui):
     print "ACTUAL MEMORY STATE from python PrintMemory"
     ui.setMV("")
     serialComm.write(b'p')
+    time.sleep(1)
     numOfFreeBlocks = 0
     numOfBlocks = 0
     numOfUnusable = 0
@@ -582,7 +588,7 @@ def showAllStats(ui):
     ui.appendST("Number of free blocks: "+str(numOfFreeBlocks))
     ui.appendST("Number of unusable blocks: "+str(numOfUnusable))
     ui.appendST("")
-    intFrag = round((float((numOfBlocks-2)*MEM_BLOCK_SIZE) / float(wholeMem)) * 100)
+    intFrag = round((float((numOfBlocks-2)*MEM_BLOCK_SIZE) / float(wholeMem-int(remainingMem))) * 100)
     ui.appendST("Internal fragmentation: "+str((numOfBlocks-2)*MEM_BLOCK_SIZE)+"B ("+str(intFrag)+"%)")
     ui.appendST("")
     ui.appendST("Type and number of requests: ")
@@ -609,4 +615,81 @@ def showAllStats(ui):
     #ui.appendST("Average allocatd block: " + str(averageAllocBlock) + "B")
     ui.appendST("Number of allocation fails due to external fagmentation: "+str(numOfExtFragFail))
     ui.setPB(allocMemPercentage)
+    exportStatsToFile()
 
+
+def exportStatsToFile():
+    global numOfAllocs, numOfFrees, numOfReallocs
+    global sucAllocs, sucFrees, sucReallocs
+    global bestFreeTime, bestReallocTime, bestAllocTime
+    global worstFreeTime, worstReallocTime, worstAllocTime
+    global countAllocTime, countFreeTime, countReallocTime
+    global maxAllocBlock, minAllocBlock, averageAllocBlock
+    global numOfFreeBlocks, maxFreeBlock, minFreeBlock, averageFreeBlock, numOfUnusable
+    global numOfExtFragFail, numOfBlocks
+    try:
+        file = open(TEST_DIR+"stats", "w")
+        if (int(numOfAllocs) == 0 and int(numOfFrees) == 0 and int(numOfReallocs) == 0):
+            file.write("No statistics available\n")
+            return
+        if (int(numOfAllocs) > 0):
+            file.write("Best alloc time: " + str(bestAllocTime) + "ms\n")
+            file.write("Worst alloc time: " + str(worstAllocTime) + "ms\n")
+            file.write("Jitter: " + str(worstAllocTime - bestAllocTime) + "ms  Average: " + str(
+                countAllocTime / sucAllocs) + "ms\n")
+            file.write("\n")
+        if (int(numOfFrees) > 0):
+            file.write("Best free time: " + str(bestFreeTime) + "ms\n")
+            file.write("Worst free time: " + str(worstFreeTime) + "ms\n")
+            file.write(
+                "Jitter: " + str(worstFreeTime - bestFreeTime) + "ms  Average: " + str(countFreeTime / sucFrees) + "ms\n")
+            file.write("\n")
+        if (int(numOfReallocs) > 0):
+            file.write("Best realloc time: " + str(bestReallocTime) + "ms\n")
+            file.write("Worst realloc time: " + str(worstReallocTime) + "ms\n")
+            file.write("Jitter: " + str(worstReallocTime - bestReallocTime) + "ms   Average: " + str(
+                countReallocTime / sucReallocs) + "ms\n")
+            file.write("\n")
+        file.write("Time count of whole test: " + str(wholeTime) + "ms\n")
+        file.write("\n")
+        file.write("External fragmentation:\n")
+        file.write("Largest free blok: " + str(maxFreeBlock) + "B\n")
+        file.write("Smallet free block: " + str(minFreeBlock) + "B\n")
+        file.write("Average free block: " + str(averageFreeBlock) + "B\n")
+        file.write("Number of free blocks: " + str(numOfFreeBlocks)+"\n")
+        file.write("Number of unusable blocks: " + str(numOfUnusable)+"\n")
+        file.write("\n")
+        intFrag = round((float((numOfBlocks - 2) * MEM_BLOCK_SIZE) / float(wholeMem-int(remainingMem))) * 100)
+        file.write("Internal fragmentation: " + str((numOfBlocks - 2) * MEM_BLOCK_SIZE) + "B (" + str(intFrag) + "%)\n")
+        file.write("\n")
+        file.write("Type and number of requests: \n")
+        file.write("(all / success / failed / percentage of success)\n")
+        if (int(numOfAllocs) > 0):
+            allocPercentage = str(round((float(sucAllocs) / float(numOfAllocs)) * 100, 3))
+            file.write("Allocs: " + str(numOfAllocs) + " / " + str(sucAllocs) + " / " + str(
+                int(numOfAllocs) - int(sucAllocs)) + " / " + allocPercentage + "%\n")
+        if (int(numOfFrees) > 0):
+            freePercentage = str(round((float(sucFrees) / float(numOfFrees)) * 100, 3))
+            file.write("Frees: " + str(numOfFrees) + " / " + str(sucFrees) + " / " + str(
+                int(numOfFrees) - int(sucFrees)) + " / " + freePercentage + "%\n")
+        if (int(numOfReallocs) > 0):
+            reallocPercentage = str(round((float(sucReallocs) / float(numOfReallocs)) * 100, 3))
+            file.write("Reallocs: " + str(numOfReallocs) + " / " + str(sucReallocs) + " / " + str(
+                int(numOfReallocs) - int(sucReallocs)) + " /" + reallocPercentage + "%\n")
+        file.write("\n")
+        file.write("Memory utilization:\n")
+        file.write("Whole memory:  " + str(wholeMem) + "B\n")
+        allocMemPercentage = str(round(((float(int(wholeMem) - int(remainingMem)) / float(wholeMem)) * 100), 3))
+        file.write(
+            "Allocated memory:  " + str(int(wholeMem) - int(remainingMem)) + "B  (" + str(allocMemPercentage) + " %)\n")
+        freeMemPercentage = str(round(((float(remainingMem) / float(wholeMem)) * 100), 3))
+        file.write("Free memory:  " + str(remainingMem) + "B  (" + str(freeMemPercentage) + " %)\n")
+        file.write("\n")
+        # ui.appendST("Largest allocated block: "+str(maxAllocBlock)+"B")
+        # ui.appendST("Smallest allocated block: "+str(minAllocBlock)+"B")
+        # ui.appendST("Average allocatd block: " + str(averageAllocBlock) + "B")
+        file.write("Number of allocation fails due to external fagmentation: " + str(numOfExtFragFail)+"\n")
+        file.close()
+    except Exception:
+            print "File not found"
+            return
