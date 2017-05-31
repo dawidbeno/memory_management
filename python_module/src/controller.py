@@ -2,7 +2,7 @@ import serial
 import time
 
 
-TEST_DIR = "/home/dejvid/tests/"
+TEST_DIR = "/Users/dejvid/Codes/memory_management/tests/"
 serialComm = None
 
 BEST = 'b'
@@ -73,7 +73,7 @@ numAllocFails = 0
 def init(ui):
     global serialComm
     try:
-        serialComm = serial.Serial('/dev/ttyACM0', 9600)
+        serialComm = serial.Serial('/dev/tty.usbmodem1421', 9600)
         time.sleep(1)
         var = serialComm.readline()
         serialComm.write(b'i')

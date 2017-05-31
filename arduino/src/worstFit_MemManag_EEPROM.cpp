@@ -17,7 +17,7 @@ static void wclearMem();
 
 
 void wMemInit(){
-  wclearMem();
+  //wclearMem();
   wMem_block block;
   uint16_t ptr = WStartAddress;
 

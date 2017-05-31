@@ -20,7 +20,7 @@ static void clearMem();
 
 
 void bMemInit(){
-  clearMem();
+  //clearMem();
   Mem_block block;
   uint16_t ptr = StartAddress;
 
