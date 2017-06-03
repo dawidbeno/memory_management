@@ -14,3 +14,16 @@ alloc 50
 alloc 46
 realloc ptr1 56
 alloc 999
+alloc 100
+alloc 56
+alloc 340
+free ptr3
+free ptr2
+realloc ptr1 220
+realloc ptr4 521
+alloc 45
+alloc 23
+alloc 95
+alloc 300
+free ptr2
+realloc ptr3 222

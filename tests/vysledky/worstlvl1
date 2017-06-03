@@ -1,0 +1,35 @@
+Best alloc time: 80ms
+Worst alloc time: 80ms
+Jitter: 0ms  Average: 80ms
+
+Best free time: 32ms
+Worst free time: 256ms
+Jitter: 224ms  Average: 109ms
+
+Best realloc time: 368ms
+Worst realloc time: 1856ms
+Jitter: 1488ms   Average: 768ms
+
+Time count of whole test: 56048ms
+
+External fragmentation:
+Largest free blok: 974B
+Smallet free block: 46B
+Average free block: 581B
+Number of free blocks: 4
+Number of unusable blocks: 0
+
+Internal fragmentation: 90B (5.0%)
+
+Type and number of requests: 
+(all / success / failed / percentage of success)
+Allocs: 15 / 15 / 0 / 100.0%
+Frees: 6 / 6 / 0 / 100.0%
+Reallocs: 6 / 4 / 2 /66.667%
+
+Memory utilization:
+Whole memory:  4096B
+Allocated memory:  1772B  (43.262 %)
+Free memory:   2324B  (56.738 %)
+
+Number of allocation fails due to external fagmentation: 0
