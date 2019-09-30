@@ -35,11 +35,11 @@ Each scenario consists of multiple tasks of allocating, reallocating and releasi
 
 Statistics are captured after the 4th test scenario, which works with different block sizes and combines all 3 types of requests. This simulates the real use of memory in practice. The scenario thus reveals the memory state after a sufficiently long period of memory usage to be able to see the strengths and weaknesses of each algorithm.
 
-#### Porovnanie časov
+#### Comparison of times
 ![Alt text](img/en_times.png?raw=true "Time")
 From the time point of view, the Worst fit algorithm works faster with different block sizes, which also had a better test time.
 
-#### Porovnanie fragmentácie
+#### Comparison of fragmentation
 ![Alt text](img/en_free_blocks.png?raw=true "free blocks")
 
 ![Alt text](img/en_num_blocks.png?raw=true "num blocks")
