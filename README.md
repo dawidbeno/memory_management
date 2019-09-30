@@ -21,13 +21,28 @@ Based on a graphical interface design, Qt Designer was used to generate an xml f
 ## Implementation of algorithms
 Within the project we created and compared implementation of two memory management algorithms: Best fit and Worst fit.
 
-For correct and fast functioning of both algorithms, it is necessary to store free blocks of memory in a data structure that keeps them organized in the correct order. In the case of the Best fit algorithm, the arrangement of free blocks is from the smallest to the largest. Worst fit algorithm from largest to smallest. Blocks indicating the beginning and end of the storage space are also stored in this data structure but are by no means used as the header of the new block.
+For correct and fast functioning of both algorithms, it is necessary to store free blocks of memory in a data structure that keeps them organized in the correct order - linked list of blocks. In the case of the Best fit algorithm, the arrangement of free blocks is from the smallest to the largest. Worst fit algorithm from largest to smallest.
 
 One block of memory is a data structure that represents the header of the memory block. It contains three data. The type of this data depends on the memory in which the implementation will work. In any case, their meaning remains the same. These are:
-* A pointer (address) to the next free block
-* a pointer (address) to the previous physical block
-* block size
+- a pointer (address) to the next free block
+- a pointer (address) to the previous physical block
+- block size
 
+
+## Results of testing
+Testing was performed in 4 scenarios, each scenario being specific to its memory requirements in terms of the size of allocated blocks.
+Each scenario consists of multiple tasks of allocating, reallocating and releasing memory blocks.
+
+Statistics are captured after the 4th test scenario, which works with different block sizes and combines all 3 types of requests. This simulates the real use of memory in practice. The scenario thus reveals the memory state after a sufficiently long period of memory usage to be able to see the strengths and weaknesses of each algorithm.
+
+#### Porovnanie časov
+![Alt text](img/en_times.png?raw=true "Time")
+From the time point of view, the Worst fit algorithm works faster with different block sizes, which also had a better test time.
+
+#### Porovnanie fragmentácie
+![Alt text](img/en_free_blocks.png?raw=true "free blocks")
+
+![Alt text](img/en_num_blocks.png?raw=true "num blocks")
 
 ## License
 This project was created as bachelor thesis in FIIT STU. May 2017.

@@ -20,13 +20,27 @@ Na vytvorenie dizajnu grafického rozhrania bol použitý Qt Designer, pomocou k
 ## Implementácia algoritmov
 V rámci projektu sme vytvorili a porovnali implementácie dvoch algoritmov správy pamäte: Best fit a Worst fit.
 
-Pre správne a rýchle fungovanie oboch algoritmov je potrebné mať uložené voľné bloky pamäte v dátovej štruktúre, ktorá ich udržiava usporiadané v správnom poradí. V prípade algoritmu Best fit je usporiadanie voľných blokov od najmenšieho po najväčší. V prípade algoritmu Worst fit od najväčšieho po najmenší. Bloky označujúce začiatok a koniec pamäťového priestoru sú tiež uložené v tejto dátovej štruktúre ale v žiadnom prípade nie sú použité ako hlavička nového bloku.
+Pre správne a rýchle fungovanie oboch algoritmov je potrebné mať uložené voľné bloky pamäte v dátovej štruktúre, ktorá ich udržiava usporiadané v správnom poradí - v spájanom zozname. V prípade algoritmu Best fit je usporiadanie voľných blokov od najmenšieho po najväčší. V prípade algoritmu Worst fit od najväčšieho po najmenší.
 
 Jeden blok pamäte je dátová štruktúra, ktorá predstavuje hlavičku bloku pamäte. Obsahuje tri údaje. Typ týchto údajov závisí od pamäte, v ktorej bude daná implementácia pracovať. Ich význam ale v každom prípade ostáva rovnaký. Sú to tieto:
-* ukazovateľ (adresa) na nasledujúci voľný blok
-* ukazovateľ (adresa) na predchádzajúci fyzický blok
-* veľkosť bloku
+- ukazovateľ (adresa) na nasledujúci voľný blok
+- ukazovateľ (adresa) na predchádzajúci fyzický blok
+- veľkosť bloku
 
+## Výsledky testovania
+Testovanie prebiehalo v 4 scenároch, pričom každý scenár je špecifický svojimi požiadavkami na pamäť z pohľadu veľkosti alokovaných blokov.
+Každý scenár sa skladá z vicerých úloh alokácie, realokácie a uvoľnenia blokov pamäte.
+
+Štatistiky sú zachytené po uplynutí 4. scenáru testovania, ktorý pracuje s rôznymi veľkosťami blokov a kombinuje všetky 3 typy požiadaviek. Takto simuluje reálne používanie pamäte v praxi. Scenár teda odhaľuje stav pamäte po dostatočne dlhom čase používania pamäte aby sme dokázali vidieť silné a slabé stránky jednotlivých algoritmov.
+
+#### Porovnanie časov
+![Alt text](img/sk_times.png?raw=true "Casove porovnanie")
+Z časového hľadiska sa ukázalo, že pri rozdielnej veľkosti blokov pracuje rýchlejšie algoritmus Worst fit, ktorý mal aj celkový čas testu lepší.
+
+#### Porovnanie fragmentácie
+![Alt text](img/sk_free_blocks.png?raw=true "Volne bloky")
+
+![Alt text](img/sk_num_blocks.png?raw=true "Pocet blokov")
 
 
 
